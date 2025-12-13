@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.UUID;
+import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")
@@ -14,9 +14,9 @@ import org.hibernate.validator.constraints.UUID;
 @AllArgsConstructor
 public class Usuario {
 
-    @UUID
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID Id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(unique = true, nullable= false)
     private String username;
