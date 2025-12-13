@@ -32,6 +32,7 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.listarPorCliente(clienteId));
     }
 
+    // PATCH es ideal para actualizaciones parciales (solo estado)
     @PatchMapping("/{id}/estado")
     public ResponseEntity<Pedido> cambiarEstado(@PathVariable Long id,
                                                 @Valid @RequestBody EstadoRequest request) {
