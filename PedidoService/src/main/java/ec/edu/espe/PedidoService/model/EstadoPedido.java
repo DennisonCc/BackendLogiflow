@@ -1,4 +1,8 @@
 package ec.edu.espe.PedidoService.model;
 
-public class EstadoPedido {
+public enum EstadoPedido {
+    Recibido,
+    Asignado,
+    Entregado,
+    Cancelado
 }
