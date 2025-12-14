@@ -1,7 +1,6 @@
 package ec.edu.espe.AuthService.seguridad;
 
-
-import com.logiflow.auth.repository.UsuarioRepository;
+import ec.edu.espe.AuthService.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

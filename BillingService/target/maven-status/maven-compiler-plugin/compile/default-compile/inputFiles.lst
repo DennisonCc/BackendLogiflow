@@ -1,0 +1,9 @@
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\BillingServiceApplication.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\controller\FacturaController.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\dto\request\FacturaRequest.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\dto\response\FacturaResponse.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\model\EstadoFactura.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\model\Factura.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\repository\FacturaRepository.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\service\FacturaService.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\BillingService\src\main\java\ec\edu\espe\BillingService\service\impl\FacturaServiceImpl.java

@@ -1,7 +1,9 @@
 package ec.edu.espe.AuthService.controller;
 
+import ec.edu.espe.AuthService.dto.request.RefreshTokenRequest;
 import ec.edu.espe.AuthService.dto.request.UsuarioLoginRequest;
 import ec.edu.espe.AuthService.dto.request.UsuarioRegistroRequest;
+import ec.edu.espe.AuthService.dto.response.TokenResponse;
 import ec.edu.espe.AuthService.dto.response.UsuarioLogeadoResponse;
 import ec.edu.espe.AuthService.service.AuthService;
 import jakarta.validation.Valid;
@@ -27,5 +29,10 @@ public class AuthController {
     public ResponseEntity<?> registrar(@Valid @RequestBody UsuarioRegistroRequest registroRequest) {
         authService.registro(registroRequest);
         return ResponseEntity.ok("Usuario registrado exitosamente");
+    }
+    
+    @PostMapping("/token/refresh")
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request.getRefreshToken()));
     }
 }

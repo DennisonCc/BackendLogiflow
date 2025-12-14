@@ -5,20 +5,27 @@ import ec.edu.espe.PedidoService.dto.PedidoRequest;
 import ec.edu.espe.PedidoService.model.EstadoPedido;
 import ec.edu.espe.PedidoService.model.Pedido;
 import ec.edu.espe.PedidoService.repository.PedidoRepository;
+import ec.edu.espe.PedidoService.service.CoberturaService;
 import ec.edu.espe.PedidoService.services.PedidoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 @RequiredArgsConstructor
 public class PedidoServiceImpl implements PedidoService {
     private final PedidoRepository pedidoRepository;
+    private final CoberturaService coberturaService;
 
     @Override
     @Transactional//ACID IMPLEMETATION :)
     public Pedido crearPedido(PedidoRequest request) {
+        // Validar cobertura geográfica
+        coberturaService.validarCobertura(request.getDireccionDestino(), request.getTipoEntrega());
+        
         Pedido nuevoPedido = new Pedido();
         nuevoPedido.setClienteId(request.getClienteId());
         nuevoPedido.setDireccionOrigen(request.getDireccionOrigen());

@@ -2,6 +2,7 @@ package ec.edu.espe.AuthService.service.impl;
 
 import ec.edu.espe.AuthService.dto.request.UsuarioLoginRequest;
 import ec.edu.espe.AuthService.dto.request.UsuarioRegistroRequest;
+import ec.edu.espe.AuthService.dto.response.TokenResponse;
 import ec.edu.espe.AuthService.dto.response.UsuarioLogeadoResponse;
 import ec.edu.espe.AuthService.model.Rol;
 import ec.edu.espe.AuthService.model.Usuario;
@@ -55,5 +56,21 @@ public class ImpAuthAuthService implements AuthService {
         usuario.setRol(Rol.valueOf(request.getRol().toUpperCase()));
 
         usuarioRepository.save(usuario);
+    }
+    
+    @Override
+    public TokenResponse refreshToken(String refreshToken) {
+        if (!proveedorJWT.validarToken(refreshToken)) {
+            throw new RuntimeException("Token de refresh inválido o expirado");
+        }
+        
+        String username = proveedorJWT.obtenerUsernameDelJWT(refreshToken);
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        String nuevoAccessToken = proveedorJWT.generarTokenDesdeUsername(username);
+        String nuevoRefreshToken = proveedorJWT.generarRefreshToken(username);
+        
+        return new TokenResponse(nuevoAccessToken, nuevoRefreshToken);
     }
 }

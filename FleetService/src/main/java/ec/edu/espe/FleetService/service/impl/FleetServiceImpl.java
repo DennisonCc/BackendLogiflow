@@ -3,6 +3,7 @@ package ec.edu.espe.FleetService.service.impl;
 import ec.edu.espe.FleetService.dto.mapper.VehiculoMapper;
 import ec.edu.espe.FleetService.dto.request.RepartidorRequest;
 import ec.edu.espe.FleetService.dto.request.VehiculoRequest;
+import ec.edu.espe.FleetService.model.EstadoVehiculo;
 import ec.edu.espe.FleetService.model.Repartidor;
 import ec.edu.espe.FleetService.model.Vehiculo;
 import ec.edu.espe.FleetService.repository.RepartidorRepository;
@@ -36,9 +37,35 @@ public class FleetServiceImpl implements FleetService {
     }
 
     @Override
-    public List<Vehiculo> listarVehiculos() { return vehiculoRepository.findAll(); }
+    @Transactional(readOnly = true)
+    public List<Vehiculo> listarVehiculos() { 
+        return vehiculoRepository.findAll(); 
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Vehiculo obtenerVehiculo(Long id) {
+        return vehiculoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado con id: " + id));
+    }
+    
+    @Override
+    @Transactional
+    public Vehiculo actualizarEstadoVehiculo(Long id, EstadoVehiculo estado) {
+        Vehiculo vehiculo = obtenerVehiculo(id);
+        vehiculo.setEstado(estado);
+        return vehiculoRepository.save(vehiculo);
+    }
+    
+    @Override
+    @Transactional
+    public void eliminarVehiculo(Long id) {
+        Vehiculo vehiculo = obtenerVehiculo(id);
+        vehiculoRepository.delete(vehiculo);
+    }
 
     @Override
+    @Transactional
     public Repartidor registrarRepartidor(RepartidorRequest request) {
         if (repartidorRepository.findByCedula(request.getCedula()).isPresent()) {
             throw new RuntimeException("Ya existe un repartidor con esa cédula");
@@ -60,5 +87,40 @@ public class FleetServiceImpl implements FleetService {
     }
 
     @Override
-    public List<Repartidor> listarRepartidores() { return repartidorRepository.findAll(); }
+    @Transactional(readOnly = true)
+    public List<Repartidor> listarRepartidores() { 
+        return repartidorRepository.findAll(); 
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Repartidor obtenerRepartidor(Long id) {
+        return repartidorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Repartidor no encontrado con id: " + id));
+    }
+    
+    @Override
+    @Transactional
+    public Repartidor actualizarRepartidor(Long id, RepartidorRequest request) {
+        Repartidor repartidor = obtenerRepartidor(id);
+        
+        repartidor.setNombre(request.getNombre());
+        repartidor.setTelefono(request.getTelefono());
+        repartidor.setLicencia(request.getLicencia());
+        
+        if (request.getVehiculoId() != null) {
+            Vehiculo vehiculo = vehiculoRepository.findById(request.getVehiculoId())
+                    .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+            repartidor.setVehiculo(vehiculo);
+        }
+        
+        return repartidorRepository.save(repartidor);
+    }
+    
+    @Override
+    @Transactional
+    public void eliminarRepartidor(Long id) {
+        Repartidor repartidor = obtenerRepartidor(id);
+        repartidorRepository.delete(repartidor);
+    }
 }

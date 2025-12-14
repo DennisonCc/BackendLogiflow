@@ -13,11 +13,14 @@ import java.util.Date;
 @Component
 public class ProveedorJWT {
 
-    @Value("${app.jwt-secret}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${app.jwt-expiration-milliseconds}")
+    @Value("${jwt.expiration}")
     private long jwtExpirationDate;
+    
+    @Value("${jwt.refresh-expiration:604800000}") // 7 días por defecto
+    private long jwtRefreshExpirationDate;
 
     public String generarToken(Authentication authentication) {
         String username = authentication.getName();
@@ -28,6 +31,31 @@ public class ProveedorJWT {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(fechaExpiracion)
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    
+    public String generarTokenDesdeUsername(String username) {
+        Date fechaActual = new Date();
+        Date fechaExpiracion = new Date(fechaActual.getTime() + jwtExpirationDate);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(fechaExpiracion)
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    
+    public String generarRefreshToken(String username) {
+        Date fechaActual = new Date();
+        Date fechaExpiracion = new Date(fechaActual.getTime() + jwtRefreshExpirationDate);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(fechaExpiracion)
+                .claim("type", "refresh")
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
