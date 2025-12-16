@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # Base de datos para AuthService
+  authdb:
+    image: postgres:15-alpine
+    container_name: authdb
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - authdb_data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Base de datos para PedidoService
+  pedidodb:
+    image: postgres:15-alpine
+    container_name: pedidodb
+    environment:
+      POSTGRES_DB: pedidodb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - pedidodb_data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Base de datos para BillingService
+  billingdb:
+    image: postgres:15-alpine
+    container_name: billingdb
+    environment:
+      POSTGRES_DB: billingdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5437:5432"
+    volumes:
+      - billingdb_data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Base de datos para FleetService
+  fleetdb:
+    image: postgres:15-alpine
+    container_name: fleetdb
+    environment:
+      POSTGRES_DB: fleetdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5438:5432"
+    volumes:
+      - fleetdb_data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  authdb_data:
+    driver: local
+  pedidodb_data:
+    driver: local
+  billingdb_data:
+    driver: local
+  fleetdb_data:
+    driver: local
+
+networks:
+  logiflow-network:
+    driver: bridge
