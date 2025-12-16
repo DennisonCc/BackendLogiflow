@@ -1,6 +1,0 @@
-C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\ApiGateway\src\main\java\ec\edu\espe\ApiGateway\ApiGatewayApplication.java
-C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\ApiGateway\src\main\java\ec\edu\espe\ApiGateway\config\GatewayConfig.java
-C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\ApiGateway\src\main\java\ec\edu\espe\ApiGateway\filter\AuthenticationFilter.java
-C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\ApiGateway\src\main\java\ec\edu\espe\ApiGateway\filter\LoggingFilter.java
-C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\ApiGateway\src\main\java\ec\edu\espe\ApiGateway\filter\RateLimitConfig.java
-C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\ApiGateway\src\main\java\ec\edu\espe\ApiGateway\util\JwtUtil.java

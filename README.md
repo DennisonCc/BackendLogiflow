@@ -1,16 +1,18 @@
 # BackendLogiflow - Sistema de Logística
 
-Sistema de microservicios para gestión logística con Spring Boot 4.0 y Spring Cloud Gateway.
+Sistema de microservicios para gestión logística con Spring Boot y Kong API Gateway.
 
 ## 🏗️ Arquitectura
 
 El sistema está compuesto por los siguientes microservicios:
 
-### 1. **API Gateway** (Puerto 8080)
-- Punto de entrada único al sistema
+### 1. **Kong API Gateway** (Puerto 8000)
+- Punto de entrada único al sistema (HTTP Proxy)
+- Admin API en puerto 8001
+- Kong Manager (GUI) en puerto 8002
 - Enrutamiento inteligente a microservicios
-- Validación JWT en rutas protegidas
-- Rate limiting por IP
+- CORS configurado
+- Rate limiting global (100 req/min, 1000 req/hora)
 - Logging centralizado de requests/responses
 
 ### 2. **AuthService** (Puerto 8081)
@@ -73,74 +75,88 @@ El sistema está compuesto por los siguientes microservicios:
 
 - Java 21
 - Maven 3.8+
-- PostgreSQL 14+ (cada servicio usa su propia base de datos)
-
-## 📦 Configuración de Bases de Datos
-
-Crear las siguientes bases de datos en PostgreSQL:
-
-```sql
-CREATE DATABASE authdb;
-CREATE DATABASE pedidodb;
-CREATE DATABASE fleetdb;
-CREATE DATABASE billingdb;
-```
-
-Configurar el usuario y contraseña en cada `application.yaml` según tu instalación de PostgreSQL.
+- Docker y Docker Compose
+- PostgreSQL 14+ (manejado por Docker)
 
 ## 🔧 Instalación y Ejecución
 
-### 1. Compilar todos los servicios
+### ⚡ Opción 1: Inicio Automático (Recomendado)
 
-```bash
-# AuthService
-cd AuthService
-mvn clean install
+**Levantar todo el sistema con un solo comando:**
 
-# PedidoService
-cd ../PedidoService
-mvn clean install
-
-# FleetService
-cd ../FleetService
-mvn clean install
-
-# BillingService
-cd ../BillingService
-mvn clean install
-
-# ApiGateway
-cd ../ApiGateway
-mvn clean install
+```powershell
+.\start-all.ps1
 ```
 
-### 2. Ejecutar los servicios (en orden)
+Este script hace todo automáticamente:
+- ✅ Levanta Kong y las bases de datos PostgreSQL
+- ✅ Compila y levanta los 4 microservicios en Docker
+- ✅ Espera a que todos estén listos
+- ✅ Configura rutas y plugins en Kong
 
-```bash
-# 1. AuthService (Puerto 8081)
-cd AuthService
-mvn spring-boot:run
-
-# 2. PedidoService (Puerto 8082)
-cd ../PedidoService
-mvn spring-boot:run
-
-# 3. BillingService (Puerto 8083)
-cd ../BillingService
-mvn spring-boot:run
-
-# 4. FleetService (Puerto 8084)
-cd ../FleetService
-mvn spring-boot:run
-
-# 5. API Gateway (Puerto 8080) - Último
-cd ../ApiGateway
-mvn spring-boot:run
+**Para detener todo:**
+```powershell
+docker-compose down
 ```
+
+**Para ver logs en tiempo real:**
+```powershell
+docker-compose logs -f
+```
+
+---
+
+### 🔧 Opción 2: Inicio Manual Paso a Paso
+
+#### 1. Iniciar Kong API Gateway y Bases de Datos
+
+```powershell
+# Levantar y compilar todos los contenedores
+docker-compose up -d --build
+
+# Verificar que todos los contenedores estén corriendo
+docker-compose ps
+```
+
+#### 2. Esperar a que los servicios estén listos (~30-60 segundos)
+
+```powershell
+# Ver logs de un servicio específico
+docker logs auth-service -f
+docker logs kong-gateway -f
+```
+
+#### 3. Configurar las Rutas en Kong
+
+```powershell
+# Ejecutar script de configuración de Kong
+.\kong-config.ps1
+```
+
+Este script configura automáticamente:
+- 4 servicios (auth, pedido, billing, fleet)
+- 4 rutas correspondientes
+- Plugin de CORS
+- Rate limiting (100 req/min, 1000 req/hora)
+- Logging de peticiones
+
+## 🌐 Acceso a los Servicios
+
+**Todos los servicios se acceden a través de Kong Gateway en el puerto 8000:**
+
+- **AuthService**: `http://localhost:8000/api/auth/*`
+- **PedidoService**: `http://localhost:8000/api/pedidos/*`
+- **BillingService**: `http://localhost:8000/api/facturas/*`
+- **FleetService**: `http://localhost:8000/api/fleet/*`
+
+**Gestión de Kong:**
+- **Kong Proxy**: `http://localhost:8000` (entrada principal)
+- **Kong Admin API**: `http://localhost:8001` (gestión)
+- **Kong Manager (GUI)**: `http://localhost:8002` (interfaz web)
 
 ## 📚 Documentación API (Swagger)
 
-Una vez iniciados los servicios, acceder a:
+Los microservicios tienen Swagger en sus puertos directos (sin pasar por Kong):
 
 - **AuthService**: http://localhost:8081/swagger-ui.html
 - **PedidoService**: http://localhost:8082/swagger-ui.html
@@ -152,7 +168,7 @@ Una vez iniciados los servicios, acceder a:
 ### 1. Registrar un usuario
 
 ```bash
-POST http://localhost:8080/api/auth/register
+POST http://localhost:8000/api/auth/register
 Content-Type: application/json
 
 {
@@ -166,7 +182,7 @@ Content-Type: application/json
 ### 2. Login
 
 ```bash
-POST http://localhost:8080/api/auth/login
+POST http://localhost:8000/api/auth/login
 Content-Type: application/json
 
 {
@@ -187,11 +203,11 @@ Content-Type: application/json
 ### 3. Usar el token en requests protegidos
 
 ```bash
-GET http://localhost:8080/api/pedidos/1
+GET http://localhost:8000/api/pedidos/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 ```
 
-## ✅ Criterios de Aceptación Cumplidos
+## ✅ Funcionalidades del Sistema
 
 ### ✅ Microservicios REST con CRUD
 - **AuthService**: Login, registro, refresh token ✅
@@ -199,22 +215,24 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 - **FleetService**: Gestión de vehículos y repartidores ✅
 - **BillingService**: Cálculo de tarifas y generación de facturas ✅
 
-### ✅ API Gateway
+### ✅ Kong API Gateway
 - Enrutamiento por prefijo (/api/pedidos → PedidoService) ✅
-- Validación JWT en rutas protegidas (401/403) ✅
-- Rate limiting por IP ✅
-- Logging centralizado (método, URI, código, userId) ✅
+- CORS configurado globalmente ✅
+- Rate limiting (100 req/min, 1000 req/hora) ✅
+- Logging centralizado de requests/responses ✅
+- Kong Manager para gestión visual ✅
 
 ### ✅ Requisitos Técnicos
 - Transacciones ACID con `@Transactional` ✅
 - Validación de entrada con Jakarta Validation ✅
 - Documentación OpenAPI 3.0 en /swagger-ui.html ✅
+- Bases de datos PostgreSQL aisladas por microservicio ✅
 
 ## 🧪 Ejemplo de Flujo Completo
 
 ```bash
 # 1. Registrar usuario
-POST http://localhost:8080/api/auth/register
+POST http://localhost:8000/api/auth/register
 {
   "username": "cliente1",
   "password": "pass123",
@@ -223,14 +241,14 @@ POST http://localhost:8080/api/auth/register
 }
 
 # 2. Login
-POST http://localhost:8080/api/auth/login
+POST http://localhost:8000/api/auth/login
 {
   "username": "cliente1",
   "password": "pass123"
 }
 
 # 3. Crear pedido urbano (usar token del paso 2)
-POST http://localhost:8080/api/pedidos
+POST http://localhost:8000/api/pedidos
 Authorization: Bearer <token>
 {
   "clienteId": 1,
@@ -241,31 +259,65 @@ Authorization: Bearer <token>
 }
 
 # 4. Consultar pedido
-GET http://localhost:8080/api/pedidos/1
+GET http://localhost:8000/api/pedidos/1
 Authorization: Bearer <token>
 
 # Respuesta muestra estado: RECIBIDO
 ```
 
-## 📋 Puertos Utilizados
+## 📋 Puertos del Sistema
 
-| Servicio | Puerto |
-|----------|--------|
-| API Gateway | 8080 |
-| AuthService | 8081 |
-| PedidoService | 8082 |
-| BillingService | 8083 |
-| FleetService | 8084 |
+| Servicio | Puerto | Descripción |
+|----------|--------|-------------|
+| Kong Proxy | 8000 | **Entrada principal del sistema** |
+| Kong Admin API | 8001 | API de administración de Kong |
+| Kong Manager | 8002 | Interfaz web de gestión |
+| AuthService | 8081 | Microservicio de autenticación |
+| PedidoService | 8082 | Microservicio de pedidos |
+| BillingService | 8083 | Microservicio de facturación |
+| FleetService | 8084 | Microservicio de flota |
 
-## 🔍 Troubleshooting
+## 🔍 Gestión de Kong
 
-1. **Error de conexión a base de datos**: Verificar que PostgreSQL esté corriendo y las bases de datos estén creadas.
+### Ver configuración actual
+```powershell
+# Ver todos los servicios
+curl http://localhost:8001/services
 
-2. **401 Unauthorized**: Verificar que el token JWT esté incluido en el header `Authorization: Bearer <token>`.
+# Ver todas las rutas
+curl http://localhost:8001/routes
 
-3. **Gateway timeout**: Asegurarse de que todos los microservicios estén ejecutándose antes de iniciar el Gateway.
+# Ver plugins activos
+curl http://localhost:8001/plugins
+```
 
-4. **Rate limit exceeded**: El sistema limita requests por IP. Esperar 1 minuto o ajustar la configuración en el Gateway.
+### Interfaz gráfica (Kong Manager)
+Accede a `http://localhost:8002` para gestionar Kong visualmente.
+
+## 🐛 Troubleshooting
+
+1. **Error de conexión a base de datos**: 
+   ```powershell
+   docker-compose ps  # Verificar contenedores
+   docker logs kong-database  # Ver logs
+   ```
+
+2. **Kong no responde**: 
+   ```powershell
+   docker logs kong-gateway -f
+   docker-compose restart kong
+   ```
+
+3. **Los microservicios no responden a través de Kong**:
+   - Verificar que los microservicios estén corriendo en los puertos correctos
+   - Ejecutar nuevamente `.\kong-config.ps1` para reconfigurar rutas
+
+4. **Rate limit exceeded**: El sistema limita a 100 requests por minuto. Ajustar en [kong-config.ps1](kong-config.ps1) si es necesario.
+
+## 📚 Documentación Adicional
+
+- [KONG_SETUP.md](KONG_SETUP.md) - Guía detallada de configuración de Kong
+- Documentación de Kong: https://docs.konghq.com/
 
 ## 👥 Roles Disponibles
 

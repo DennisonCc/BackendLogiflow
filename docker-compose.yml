@@ -1,0 +1,235 @@
+services:
+  # PostgreSQL para Kong
+  kong-database:
+    image: postgres:14-alpine
+    container_name: kong-database
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+    ports:
+      - "5439:5432"
+    volumes:
+      - kong-data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Migración de base de datos Kong
+  kong-migration:
+    image: kong:3.5
+    container_name: kong-migration
+    command: kong migrations bootstrap
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    networks:
+      - logiflow-network
+    restart: on-failure
+
+  # Kong Gateway
+  kong:
+    image: kong:3.5
+    container_name: kong-gateway
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    ports:
+      - "8080:8000"  # Proxy HTTP
+      - "8446:8443"  # Proxy HTTPS (cambiado a 8446)
+      - "8444:8001"  # Admin API (cambiado a 8444)
+      - "8445:8002"  # Kong Manager (GUI)
+    depends_on:
+      kong-database:
+        condition: service_healthy
+      kong-migration:
+        condition: service_completed_successfully
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Bases de datos de los microservicios
+  authdb:
+    image: postgres:14-alpine
+    container_name: authdb
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - authdb-data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pedidodb:
+    image: postgres:14-alpine
+    container_name: pedidodb
+    environment:
+      POSTGRES_DB: pedidodb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - pedidodb-data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  billingdb:
+    image: postgres:14-alpine
+    container_name: billingdb
+    environment:
+      POSTGRES_DB: billingdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5437:5432"
+    volumes:
+      - billingdb-data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  fleetdb:
+    image: postgres:14-alpine
+    container_name: fleetdb
+    environment:
+      POSTGRES_DB: fleetdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5438:5432"
+    volumes:
+      - fleetdb-data:/var/lib/postgresql/data
+    networks:
+      - logiflow-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Microservicios
+  auth-service:
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://authdb:5432/authdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      authdb:
+        condition: service_healthy
+    networks:
+      - logiflow-network
+    restart: unless-stopped
+
+  pedido-service:
+    build:
+      context: ./PedidoService
+      dockerfile: Dockerfile
+    container_name: pedido-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pedidodb:5432/pedidodb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      pedidodb:
+        condition: service_healthy
+    networks:
+      - logiflow-network
+    restart: unless-stopped
+
+  billing-service:
+    build:
+      context: ./BillingService
+      dockerfile: Dockerfile
+    container_name: billing-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://billingdb:5432/billingdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      billingdb:
+        condition: service_healthy
+    networks:
+      - logiflow-network
+    restart: unless-stopped
+
+  fleet-service:
+    build:
+      context: ./FleetService
+      dockerfile: Dockerfile
+    container_name: fleet-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://fleetdb:5432/fleetdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      fleetdb:
+        condition: service_healthy
+    networks:
+      - logiflow-network
+    restart: unless-stopped
+
+networks:
+  logiflow-network:
+    driver: bridge
+
+volumes:
+  kong-data:
+  authdb-data:
+  pedidodb-data:
+  billingdb-data:
+  fleetdb-data:

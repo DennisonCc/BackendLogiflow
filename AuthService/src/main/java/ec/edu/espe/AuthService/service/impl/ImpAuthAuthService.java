@@ -53,7 +53,7 @@ public class ImpAuthAuthService implements AuthService {
         usuario.setUsername(request.getUsername());
         usuario.setEmail(request.getEmail());
         usuario.setPassword(encoder.encode(request.getPassword()));
-        usuario.setRol(Rol.valueOf(request.getRol().toUpperCase()));
+        usuario.setRol(Rol.valueOf(request.getRol()));
 
         usuarioRepository.save(usuario);
     }
