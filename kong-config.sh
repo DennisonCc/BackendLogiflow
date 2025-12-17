@@ -1,120 +1,129 @@
 #!/bin/bash
 
-echo "================================================"
-echo "Configurando Kong API Gateway para Logiflow"
-echo "================================================"
+echo "Configurando rutas en Kong..."
 
 # Esperar a que Kong esté listo
 echo "Esperando a que Kong esté disponible..."
-until curl -s http://localhost:8001/ > /dev/null; do
+until curl -s http://localhost:8444/ > /dev/null; do
     sleep 2
     echo "Esperando..."
 done
-echo "✓ Kong está disponible"
 
 # Crear Service y Route para AuthService
-echo ""
-echo "Configurando AuthService..."
-curl -i -X POST http://localhost:8001/services/ \
+curl -s -X POST http://localhost:8444/services/ \
   --data "name=auth-service" \
-  --data "url=http://host.docker.internal:8081"
+  --data "url=http://auth-service:8081" > /dev/null
 
-curl -i -X POST http://localhost:8001/services/auth-service/routes \
+curl -s -X POST http://localhost:8444/services/auth-service/routes \
   --data "name=auth-route" \
   --data "paths[]=/api/auth" \
-  --data "strip_path=false"
+  --data "strip_path=false" > /dev/null
 
-echo "✓ AuthService configurado"
+echo "AuthService configurado (publico)"
+
+# Crear Consumer JWT
+curl -s -X POST http://localhost:8444/consumers/ \
+  --data "username=logiflow-users" > /dev/null
+
+echo "Consumer JWT creado"
+
+# Crear Credencial JWT
+curl -s -X POST http://localhost:8444/consumers/logiflow-users/jwt \
+  --data "key=logiflow-jwt" \
+  --data "secret=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970" \
+  --data "algorithm=HS256" > /dev/null
+
+echo "Credencial JWT configurada"
 
 # Crear Service y Route para PedidoService
-echo ""
-echo "Configurando PedidoService..."
-curl -i -X POST http://localhost:8001/services/ \
+curl -s -X POST http://localhost:8444/services/ \
   --data "name=pedido-service" \
-  --data "url=http://host.docker.internal:8082"
+  --data "url=http://pedido-service:8082" > /dev/null
 
-curl -i -X POST http://localhost:8001/services/pedido-service/routes \
+PEDIDO_ROUTE_ID=$(curl -s -X POST http://localhost:8444/services/pedido-service/routes \
   --data "name=pedido-route" \
   --data "paths[]=/api/pedidos" \
-  --data "strip_path=false"
+  --data "strip_path=false" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 
-echo "✓ PedidoService configurado"
+curl -s -X POST http://localhost:8444/routes/$PEDIDO_ROUTE_ID/plugins \
+  --data "name=jwt" \
+  --data "config.claims_to_verify=exp" > /dev/null
 
-# Crear Service y Route para BillingService
-echo ""
-echo "Configurando BillingService..."
-curl -i -X POST http://localhost:8001/services/ \
-  --data "name=billing-service" \
-  --data "url=http://host.docker.internal:8083"
-
-curl -i -X POST http://localhost:8001/services/billing-service/routes \
-  --data "name=billing-route" \
-  --data "paths[]=/api/facturas" \
-  --data "strip_path=false"
-
-echo "✓ BillingService configurado"
-
-# Crear Service y Route para FleetService
-echo ""
-echo "Configurando FleetService..."
-curl -i -X POST http://localhost:8001/services/ \
-  --data "name=fleet-service" \
-  --data "url=http://host.docker.internal:8084"
-
-curl -i -X POST http://localhost:8001/services/fleet-service/routes \
-  --data "name=fleet-route" \
-  --data "paths[]=/api/fleet" \
-  --data "strip_path=false"
-
-echo "✓ FleetService configurado"
-
-# Configurar plugin de CORS
-echo ""
-echo "Configurando CORS..."
-curl -i -X POST http://localhost:8001/plugins/ \
-  --data "name=cors" \
-  --data "config.origins=*" \
-  --data "config.methods=GET,POST,PUT,PATCH,DELETE,OPTIONS" \
-  --data "config.headers=Accept,Accept-Language,Content-Type,Authorization" \
-  --data "config.exposed_headers=X-Auth-Token" \
-  --data "config.credentials=true" \
-  --data "config.max_age=3600"
-
-echo "✓ CORS configurado"
-
-# Configurar Rate Limiting global
-echo ""
-echo "Configurando Rate Limiting..."
-curl -i -X POST http://localhost:8001/plugins/ \
+curl -s -X POST http://localhost:8444/routes/$PEDIDO_ROUTE_ID/plugins \
   --data "name=rate-limiting" \
   --data "config.minute=100" \
-  --data "config.hour=1000" \
-  --data "config.policy=local"
+  --data "config.policy=local" > /dev/null
 
-echo "✓ Rate Limiting configurado"
+echo "PedidoService configurado (protegido con JWT + Rate Limiting)"
 
-# Configurar Request/Response Logging
-echo ""
-echo "Configurando Logging..."
-curl -i -X POST http://localhost:8001/plugins/ \
-  --data "name=file-log" \
-  --data "config.path=/tmp/kong-logs.log"
+# Crear Service y Route para BillingService
+curl -s -X POST http://localhost:8444/services/ \
+  --data "name=billing-service" \
+  --data "url=http://billing-service:8083" > /dev/null
 
-echo "✓ Logging configurado"
+BILLING_ROUTE_ID=$(curl -s -X POST http://localhost:8444/services/billing-service/routes \
+  --data "name=billing-route" \
+  --data "paths[]=/api/facturas" \
+  --data "strip_path=false" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+curl -s -X POST http://localhost:8444/routes/$BILLING_ROUTE_ID/plugins \
+  --data "name=jwt" \
+  --data "config.claims_to_verify=exp" > /dev/null
+
+curl -s -X POST http://localhost:8444/routes/$BILLING_ROUTE_ID/plugins \
+  --data "name=rate-limiting" \
+  --data "config.minute=100" \
+  --data "config.policy=local" > /dev/null
+
+echo "BillingService configurado (protegido con JWT + Rate Limiting)"
+
+# Crear Service y Route para FleetService
+curl -s -X POST http://localhost:8444/services/ \
+  --data "name=fleet-service" \
+  --data "url=http://fleet-service:8084" > /dev/null
+
+FLEET_ROUTE_ID=$(curl -s -X POST http://localhost:8444/services/fleet-service/routes \
+  --data "name=fleet-route" \
+  --data "paths[]=/api/fleet" \
+  --data "strip_path=false" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+
+curl -s -X POST http://localhost:8444/routes/$FLEET_ROUTE_ID/plugins \
+  --data "name=jwt" \
+  --data "config.claims_to_verify=exp" > /dev/null
+
+curl -s -X POST http://localhost:8444/routes/$FLEET_ROUTE_ID/plugins \
+  --data "name=rate-limiting" \
+  --data "config.minute=100" \
+  --data "config.policy=local" > /dev/null
+
+echo "FleetService configurado (protegido con JWT + Rate Limiting)"
+
+# Configurar plugin de CORS
+curl -s -X POST http://localhost:8444/plugins/ \
+  --data "name=cors" \
+  --data "config.origins=*" \
+  --data "config.methods=GET" \
+  --data "config.methods=HEAD" \
+  --data "config.methods=PUT" \
+  --data "config.methods=PATCH" \
+  --data "config.methods=POST" \
+  --data "config.methods=DELETE" \
+  --data "config.methods=OPTIONS" \
+  --data "config.headers=Accept" \
+  --data "config.headers=Content-Type" \
+  --data "config.headers=Authorization" \
+  --data "config.credentials=true" > /dev/null
+
+echo "CORS configurado"
+
+# Rate Limiting Global (para rutas públicas como auth)
+curl -s -X POST http://localhost:8444/plugins/ \
+  --data "name=rate-limiting" \
+  --data "config.minute=200" \
+  --data "config.hour=5000" \
+  --data "config.policy=local" > /dev/null
+
+echo "Rate Limiting Global configurado (200 req/min, 5000 req/hora)"
 
 echo ""
-echo "================================================"
-echo "✓ Configuración de Kong completada exitosamente"
-echo "================================================"
-echo ""
-echo "Puertos:"
-echo "  - Kong Proxy: http://localhost:8000"
-echo "  - Kong Admin API: http://localhost:8001"
-echo "  - Kong Manager (GUI): http://localhost:8002"
-echo ""
-echo "Servicios configurados:"
-echo "  - AuthService: http://localhost:8000/api/auth/*"
-echo "  - PedidoService: http://localhost:8000/api/pedidos/*"
-echo "  - BillingService: http://localhost:8000/api/facturas/*"
-echo "  - FleetService: http://localhost:8000/api/fleet/*"
-echo ""
+echo "Kong configurado con JWT + Rate Limiting!"
