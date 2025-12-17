@@ -6,8 +6,12 @@
              },
     "servers":  [
                     {
+                        "url":  "http://localhost:8080/billing",
+                        "description":  "Kong API Gateway - BillingService"
+                    },
+                    {
                         "url":  "http://localhost:8083",
-                        "description":  "Generated server url"
+                        "description":  "Direct service (desarrollo)"
                     }
                 ],
     "paths":  {

@@ -11,8 +11,12 @@
              },
     "servers":  [
                     {
+                        "url":  "http://localhost:8080/fleet",
+                        "description":  "Kong API Gateway - FleetService"
+                    },
+                    {
                         "url":  "http://localhost:8084",
-                        "description":  "Generated server url"
+                        "description":  "Direct service (desarrollo)"
                     }
                 ],
     "paths":  {

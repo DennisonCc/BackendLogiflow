@@ -6,8 +6,12 @@
              },
     "servers":  [
                     {
+                        "url":  "http://localhost:8080/auth",
+                        "description":  "Kong API Gateway - AuthService"
+                    },
+                    {
                         "url":  "http://localhost:8081",
-                        "description":  "Generated server url"
+                        "description":  "Direct service (desarrollo)"
                     }
                 ],
     "paths":  {
