@@ -1,0 +1,294 @@
+﻿{
+    "openapi":  "3.0.1",
+    "info":  {
+                 "title":  "PedidoService API",
+                 "description":  "API de gestiÃ³n de pedidos para LogiFlow",
+                 "contact":  {
+                                 "name":  "LogiFlow Team",
+                                 "email":  "support@logiflow.com"
+                             },
+                 "version":  "1.0"
+             },
+    "servers":  [
+                    {
+                        "url":  "http://localhost:8082",
+                        "description":  "Generated server url"
+                    }
+                ],
+    "paths":  {
+                  "/api/pedidos":  {
+                                       "post":  {
+                                                    "tags":  [
+                                                                 "pedido-controller"
+                                                             ],
+                                                    "operationId":  "crear",
+                                                    "requestBody":  {
+                                                                        "content":  {
+                                                                                        "application/json":  {
+                                                                                                                 "schema":  {
+                                                                                                                                "$ref":  "#/components/schemas/PedidoRequest"
+                                                                                                                            }
+                                                                                                             }
+                                                                                    },
+                                                                        "required":  true
+                                                                    },
+                                                    "responses":  {
+                                                                      "200":  {
+                                                                                  "description":  "OK",
+                                                                                  "content":  {
+                                                                                                  "*/*":  {
+                                                                                                              "schema":  {
+                                                                                                                             "$ref":  "#/components/schemas/Pedido"
+                                                                                                                         }
+                                                                                                          }
+                                                                                              }
+                                                                              }
+                                                                  }
+                                                }
+                                   },
+                  "/api/pedidos/{id}/estado":  {
+                                                   "patch":  {
+                                                                 "tags":  [
+                                                                              "pedido-controller"
+                                                                          ],
+                                                                 "operationId":  "cambiarEstado",
+                                                                 "parameters":  [
+                                                                                    {
+                                                                                        "name":  "id",
+                                                                                        "in":  "path",
+                                                                                        "required":  true,
+                                                                                        "schema":  {
+                                                                                                       "type":  "integer",
+                                                                                                       "format":  "int64"
+                                                                                                   }
+                                                                                    }
+                                                                                ],
+                                                                 "requestBody":  {
+                                                                                     "content":  {
+                                                                                                     "application/json":  {
+                                                                                                                              "schema":  {
+                                                                                                                                             "$ref":  "#/components/schemas/EstadoRequest"
+                                                                                                                                         }
+                                                                                                                          }
+                                                                                                 },
+                                                                                     "required":  true
+                                                                                 },
+                                                                 "responses":  {
+                                                                                   "200":  {
+                                                                                               "description":  "OK",
+                                                                                               "content":  {
+                                                                                                               "*/*":  {
+                                                                                                                           "schema":  {
+                                                                                                                                          "$ref":  "#/components/schemas/Pedido"
+                                                                                                                                      }
+                                                                                                                       }
+                                                                                                           }
+                                                                                           }
+                                                                               }
+                                                             }
+                                               },
+                  "/api/pedidos/{id}":  {
+                                            "get":  {
+                                                        "tags":  [
+                                                                     "pedido-controller"
+                                                                 ],
+                                                        "operationId":  "obtener",
+                                                        "parameters":  [
+                                                                           {
+                                                                               "name":  "id",
+                                                                               "in":  "path",
+                                                                               "required":  true,
+                                                                               "schema":  {
+                                                                                              "type":  "integer",
+                                                                                              "format":  "int64"
+                                                                                          }
+                                                                           }
+                                                                       ],
+                                                        "responses":  {
+                                                                          "200":  {
+                                                                                      "description":  "OK",
+                                                                                      "content":  {
+                                                                                                      "*/*":  {
+                                                                                                                  "schema":  {
+                                                                                                                                 "$ref":  "#/components/schemas/Pedido"
+                                                                                                                             }
+                                                                                                              }
+                                                                                                  }
+                                                                                  }
+                                                                      }
+                                                    },
+                                            "delete":  {
+                                                           "tags":  [
+                                                                        "pedido-controller"
+                                                                    ],
+                                                           "operationId":  "cancelar",
+                                                           "parameters":  [
+                                                                              {
+                                                                                  "name":  "id",
+                                                                                  "in":  "path",
+                                                                                  "required":  true,
+                                                                                  "schema":  {
+                                                                                                 "type":  "integer",
+                                                                                                 "format":  "int64"
+                                                                                             }
+                                                                              }
+                                                                          ],
+                                                           "responses":  {
+                                                                             "200":  {
+                                                                                         "description":  "OK",
+                                                                                         "content":  {
+                                                                                                         "*/*":  {
+                                                                                                                     "schema":  {
+                                                                                                                                    "type":  "object"
+                                                                                                                                }
+                                                                                                                 }
+                                                                                                     }
+                                                                                     }
+                                                                         }
+                                                       }
+                                        },
+                  "/api/pedidos/cliente/{clienteId}":  {
+                                                           "get":  {
+                                                                       "tags":  [
+                                                                                    "pedido-controller"
+                                                                                ],
+                                                                       "operationId":  "listarPorCliente",
+                                                                       "parameters":  [
+                                                                                          {
+                                                                                              "name":  "clienteId",
+                                                                                              "in":  "path",
+                                                                                              "required":  true,
+                                                                                              "schema":  {
+                                                                                                             "type":  "integer",
+                                                                                                             "format":  "int64"
+                                                                                                         }
+                                                                                          }
+                                                                                      ],
+                                                                       "responses":  {
+                                                                                         "200":  {
+                                                                                                     "description":  "OK",
+                                                                                                     "content":  {
+                                                                                                                     "*/*":  {
+                                                                                                                                 "schema":  {
+                                                                                                                                                "type":  "array",
+                                                                                                                                                "items":  {
+                                                                                                                                                              "$ref":  "#/components/schemas/Pedido"
+                                                                                                                                                          }
+                                                                                                                                            }
+                                                                                                                             }
+                                                                                                                 }
+                                                                                                 }
+                                                                                     }
+                                                                   }
+                                                       }
+              },
+    "components":  {
+                       "schemas":  {
+                                       "PedidoRequest":  {
+                                                             "required":  [
+                                                                              "clienteId",
+                                                                              "descripcionPaquete",
+                                                                              "direccionDestino",
+                                                                              "direccionOrigen",
+                                                                              "tipoEntrega"
+                                                                          ],
+                                                             "type":  "object",
+                                                             "properties":  {
+                                                                                "clienteId":  {
+                                                                                                  "type":  "integer",
+                                                                                                  "format":  "int64"
+                                                                                              },
+                                                                                "direccionOrigen":  {
+                                                                                                        "type":  "string"
+                                                                                                    },
+                                                                                "direccionDestino":  {
+                                                                                                         "type":  "string"
+                                                                                                     },
+                                                                                "tipoEntrega":  {
+                                                                                                    "type":  "string",
+                                                                                                    "enum":  [
+                                                                                                                 "Urbana",
+                                                                                                                 "Municipal",
+                                                                                                                 "Interprovincial"
+                                                                                                             ]
+                                                                                                },
+                                                                                "descripcionPaquete":  {
+                                                                                                           "type":  "string"
+                                                                                                       }
+                                                                            }
+                                                         },
+                                       "Pedido":  {
+                                                      "type":  "object",
+                                                      "properties":  {
+                                                                         "id":  {
+                                                                                    "type":  "integer",
+                                                                                    "format":  "int64"
+                                                                                },
+                                                                         "clienteId":  {
+                                                                                           "type":  "integer",
+                                                                                           "format":  "int64"
+                                                                                       },
+                                                                         "repartidorId":  {
+                                                                                              "type":  "integer",
+                                                                                              "format":  "int64"
+                                                                                          },
+                                                                         "direccionOrigen":  {
+                                                                                                 "type":  "string"
+                                                                                             },
+                                                                         "direccionDestino":  {
+                                                                                                  "type":  "string"
+                                                                                              },
+                                                                         "tipoEntrega":  {
+                                                                                             "type":  "string",
+                                                                                             "enum":  [
+                                                                                                          "Urbana",
+                                                                                                          "Municipal",
+                                                                                                          "Interprovincial"
+                                                                                                      ]
+                                                                                         },
+                                                                         "estado":  {
+                                                                                        "type":  "string",
+                                                                                        "enum":  [
+                                                                                                     "Recibido",
+                                                                                                     "Asignado",
+                                                                                                     "Entregado",
+                                                                                                     "Cancelado"
+                                                                                                 ]
+                                                                                    },
+                                                                         "descripcionPaquete":  {
+                                                                                                    "type":  "string"
+                                                                                                },
+                                                                         "fechaCreacion":  {
+                                                                                               "type":  "string",
+                                                                                               "format":  "date-time"
+                                                                                           },
+                                                                         "fechaActualizacion":  {
+                                                                                                    "type":  "string",
+                                                                                                    "format":  "date-time"
+                                                                                                }
+                                                                     }
+                                                  },
+                                       "EstadoRequest":  {
+                                                             "required":  [
+                                                                              "nuevoEstado"
+                                                                          ],
+                                                             "type":  "object",
+                                                             "properties":  {
+                                                                                "nuevoEstado":  {
+                                                                                                    "type":  "string",
+                                                                                                    "enum":  [
+                                                                                                                 "Recibido",
+                                                                                                                 "Asignado",
+                                                                                                                 "Entregado",
+                                                                                                                 "Cancelado"
+                                                                                                             ]
+                                                                                                },
+                                                                                "repartidorId":  {
+                                                                                                     "type":  "integer",
+                                                                                                     "format":  "int64"
+                                                                                                 }
+                                                                            }
+                                                         }
+                                   }
+                   }
+}

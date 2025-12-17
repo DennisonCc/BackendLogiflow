@@ -17,3 +17,17 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  info:
+    title: BillingService API
+    description: Servicio de facturación y gestión de cobros LogiFlow
+    version: 1.0.0
+    contact:
+      name: Equipo LogiFlow
+      email: soporte@logiflow.com

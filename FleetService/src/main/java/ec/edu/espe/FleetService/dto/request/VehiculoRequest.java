@@ -1,12 +1,15 @@
 package ec.edu.espe.FleetService.dto.request;
 
-
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.NotNull;
 
 @Data
-public abstract class VehiculoRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+public class VehiculoRequest {
     @NotBlank(message = "La placa es obligatoria")
     private String placa;
 
@@ -16,7 +19,8 @@ public abstract class VehiculoRequest {
     @NotBlank
     private String modelo;
 
+    @NotNull
+    private Double capacidadCarga;
 
-
-
+    private String tipoVehiculo; // "CAMION", "MOTO", etc.
 }

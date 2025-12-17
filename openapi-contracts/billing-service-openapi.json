@@ -1,0 +1,276 @@
+﻿{
+    "openapi":  "3.0.1",
+    "info":  {
+                 "title":  "OpenAPI definition",
+                 "version":  "v0"
+             },
+    "servers":  [
+                    {
+                        "url":  "http://localhost:8083",
+                        "description":  "Generated server url"
+                    }
+                ],
+    "paths":  {
+                  "/api/facturas":  {
+                                        "post":  {
+                                                     "tags":  [
+                                                                  "factura-controller"
+                                                              ],
+                                                     "operationId":  "generar",
+                                                     "requestBody":  {
+                                                                         "content":  {
+                                                                                         "application/json":  {
+                                                                                                                  "schema":  {
+                                                                                                                                 "$ref":  "#/components/schemas/FacturaRequest"
+                                                                                                                             }
+                                                                                                              }
+                                                                                     },
+                                                                         "required":  true
+                                                                     },
+                                                     "responses":  {
+                                                                       "200":  {
+                                                                                   "description":  "OK",
+                                                                                   "content":  {
+                                                                                                   "*/*":  {
+                                                                                                               "schema":  {
+                                                                                                                              "$ref":  "#/components/schemas/Factura"
+                                                                                                                          }
+                                                                                                           }
+                                                                                               }
+                                                                               }
+                                                                   }
+                                                 }
+                                    },
+                  "/api/facturas/{id}/pagar":  {
+                                                   "patch":  {
+                                                                 "tags":  [
+                                                                              "factura-controller"
+                                                                          ],
+                                                                 "operationId":  "marcarPagada",
+                                                                 "parameters":  [
+                                                                                    {
+                                                                                        "name":  "id",
+                                                                                        "in":  "path",
+                                                                                        "required":  true,
+                                                                                        "schema":  {
+                                                                                                       "type":  "integer",
+                                                                                                       "format":  "int64"
+                                                                                                   }
+                                                                                    }
+                                                                                ],
+                                                                 "responses":  {
+                                                                                   "200":  {
+                                                                                               "description":  "OK",
+                                                                                               "content":  {
+                                                                                                               "*/*":  {
+                                                                                                                           "schema":  {
+                                                                                                                                          "$ref":  "#/components/schemas/Factura"
+                                                                                                                                      }
+                                                                                                                       }
+                                                                                                           }
+                                                                                           }
+                                                                               }
+                                                             }
+                                               },
+                  "/api/facturas/{id}/emitir":  {
+                                                    "patch":  {
+                                                                  "tags":  [
+                                                                               "factura-controller"
+                                                                           ],
+                                                                  "operationId":  "emitir",
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "name":  "id",
+                                                                                         "in":  "path",
+                                                                                         "required":  true,
+                                                                                         "schema":  {
+                                                                                                        "type":  "integer",
+                                                                                                        "format":  "int64"
+                                                                                                    }
+                                                                                     }
+                                                                                 ],
+                                                                  "responses":  {
+                                                                                    "200":  {
+                                                                                                "description":  "OK",
+                                                                                                "content":  {
+                                                                                                                "*/*":  {
+                                                                                                                            "schema":  {
+                                                                                                                                           "$ref":  "#/components/schemas/Factura"
+                                                                                                                                       }
+                                                                                                                        }
+                                                                                                            }
+                                                                                            }
+                                                                                }
+                                                              }
+                                                },
+                  "/api/facturas/{id}":  {
+                                             "get":  {
+                                                         "tags":  [
+                                                                      "factura-controller"
+                                                                  ],
+                                                         "operationId":  "obtener",
+                                                         "parameters":  [
+                                                                            {
+                                                                                "name":  "id",
+                                                                                "in":  "path",
+                                                                                "required":  true,
+                                                                                "schema":  {
+                                                                                               "type":  "integer",
+                                                                                               "format":  "int64"
+                                                                                           }
+                                                                            }
+                                                                        ],
+                                                         "responses":  {
+                                                                           "200":  {
+                                                                                       "description":  "OK",
+                                                                                       "content":  {
+                                                                                                       "*/*":  {
+                                                                                                                   "schema":  {
+                                                                                                                                  "$ref":  "#/components/schemas/Factura"
+                                                                                                                              }
+                                                                                                               }
+                                                                                                   }
+                                                                                   }
+                                                                       }
+                                                     }
+                                         },
+                  "/api/facturas/pedido/{pedidoId}":  {
+                                                          "get":  {
+                                                                      "tags":  [
+                                                                                   "factura-controller"
+                                                                               ],
+                                                                      "operationId":  "obtenerPorPedido",
+                                                                      "parameters":  [
+                                                                                         {
+                                                                                             "name":  "pedidoId",
+                                                                                             "in":  "path",
+                                                                                             "required":  true,
+                                                                                             "schema":  {
+                                                                                                            "type":  "integer",
+                                                                                                            "format":  "int64"
+                                                                                                        }
+                                                                                         }
+                                                                                     ],
+                                                                      "responses":  {
+                                                                                        "200":  {
+                                                                                                    "description":  "OK",
+                                                                                                    "content":  {
+                                                                                                                    "*/*":  {
+                                                                                                                                "schema":  {
+                                                                                                                                               "$ref":  "#/components/schemas/Factura"
+                                                                                                                                           }
+                                                                                                                            }
+                                                                                                                }
+                                                                                                }
+                                                                                    }
+                                                                  }
+                                                      },
+                  "/api/facturas/cliente/{clienteId}":  {
+                                                            "get":  {
+                                                                        "tags":  [
+                                                                                     "factura-controller"
+                                                                                 ],
+                                                                        "operationId":  "listarPorCliente",
+                                                                        "parameters":  [
+                                                                                           {
+                                                                                               "name":  "clienteId",
+                                                                                               "in":  "path",
+                                                                                               "required":  true,
+                                                                                               "schema":  {
+                                                                                                              "type":  "integer",
+                                                                                                              "format":  "int64"
+                                                                                                          }
+                                                                                           }
+                                                                                       ],
+                                                                        "responses":  {
+                                                                                          "200":  {
+                                                                                                      "description":  "OK",
+                                                                                                      "content":  {
+                                                                                                                      "*/*":  {
+                                                                                                                                  "schema":  {
+                                                                                                                                                 "type":  "array",
+                                                                                                                                                 "items":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/Factura"
+                                                                                                                                                           }
+                                                                                                                                             }
+                                                                                                                              }
+                                                                                                                  }
+                                                                                                  }
+                                                                                      }
+                                                                    }
+                                                        }
+              },
+    "components":  {
+                       "schemas":  {
+                                       "FacturaRequest":  {
+                                                              "required":  [
+                                                                               "clienteId",
+                                                                               "pedidoId"
+                                                                           ],
+                                                              "type":  "object",
+                                                              "properties":  {
+                                                                                 "pedidoId":  {
+                                                                                                  "type":  "integer",
+                                                                                                  "format":  "int64"
+                                                                                              },
+                                                                                 "clienteId":  {
+                                                                                                   "type":  "integer",
+                                                                                                   "format":  "int64"
+                                                                                               },
+                                                                                 "descripcion":  {
+                                                                                                     "type":  "string"
+                                                                                                 }
+                                                                             }
+                                                          },
+                                       "Factura":  {
+                                                       "type":  "object",
+                                                       "properties":  {
+                                                                          "id":  {
+                                                                                     "type":  "integer",
+                                                                                     "format":  "int64"
+                                                                                 },
+                                                                          "pedidoId":  {
+                                                                                           "type":  "integer",
+                                                                                           "format":  "int64"
+                                                                                       },
+                                                                          "clienteId":  {
+                                                                                            "type":  "integer",
+                                                                                            "format":  "int64"
+                                                                                        },
+                                                                          "tarifaBase":  {
+                                                                                             "type":  "number"
+                                                                                         },
+                                                                          "recargos":  {
+                                                                                           "type":  "number"
+                                                                                       },
+                                                                          "descuentos":  {
+                                                                                             "type":  "number"
+                                                                                         },
+                                                                          "total":  {
+                                                                                        "type":  "number"
+                                                                                    },
+                                                                          "estado":  {
+                                                                                         "type":  "string",
+                                                                                         "enum":  [
+                                                                                                      "BORRADOR",
+                                                                                                      "EMITIDA",
+                                                                                                      "PAGADA",
+                                                                                                      "CANCELADA"
+                                                                                                  ]
+                                                                                     },
+                                                                          "descripcion":  {
+                                                                                              "type":  "string"
+                                                                                          },
+                                                                          "fechaEmision":  {
+                                                                                               "type":  "string",
+                                                                                               "format":  "date-time"
+                                                                                           },
+                                                                          "fechaPago":  {
+                                                                                            "type":  "string",
+                                                                                            "format":  "date-time"
+                                                                                        }
+                                                                      }
+                                                   }
+                                   }
+                   }
+}

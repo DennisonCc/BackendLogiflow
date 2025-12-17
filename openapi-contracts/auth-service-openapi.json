@@ -1,0 +1,186 @@
+﻿{
+    "openapi":  "3.0.1",
+    "info":  {
+                 "title":  "OpenAPI definition",
+                 "version":  "v0"
+             },
+    "servers":  [
+                    {
+                        "url":  "http://localhost:8081",
+                        "description":  "Generated server url"
+                    }
+                ],
+    "paths":  {
+                  "/api/auth/token/refresh":  {
+                                                  "post":  {
+                                                               "tags":  [
+                                                                            "auth-controller"
+                                                                        ],
+                                                               "operationId":  "refresh",
+                                                               "requestBody":  {
+                                                                                   "content":  {
+                                                                                                   "application/json":  {
+                                                                                                                            "schema":  {
+                                                                                                                                           "$ref":  "#/components/schemas/RefreshTokenRequest"
+                                                                                                                                       }
+                                                                                                                        }
+                                                                                               },
+                                                                                   "required":  true
+                                                                               },
+                                                               "responses":  {
+                                                                                 "200":  {
+                                                                                             "description":  "OK",
+                                                                                             "content":  {
+                                                                                                             "*/*":  {
+                                                                                                                         "schema":  {
+                                                                                                                                        "$ref":  "#/components/schemas/TokenResponse"
+                                                                                                                                    }
+                                                                                                                     }
+                                                                                                         }
+                                                                                         }
+                                                                             }
+                                                           }
+                                              },
+                  "/api/auth/register":  {
+                                             "post":  {
+                                                          "tags":  [
+                                                                       "auth-controller"
+                                                                   ],
+                                                          "operationId":  "registrar",
+                                                          "requestBody":  {
+                                                                              "content":  {
+                                                                                              "application/json":  {
+                                                                                                                       "schema":  {
+                                                                                                                                      "$ref":  "#/components/schemas/UsuarioRegistroRequest"
+                                                                                                                                  }
+                                                                                                                   }
+                                                                                          },
+                                                                              "required":  true
+                                                                          },
+                                                          "responses":  {
+                                                                            "200":  {
+                                                                                        "description":  "OK",
+                                                                                        "content":  {
+                                                                                                        "*/*":  {
+                                                                                                                    "schema":  {
+                                                                                                                                   "type":  "object"
+                                                                                                                               }
+                                                                                                                }
+                                                                                                    }
+                                                                                    }
+                                                                        }
+                                                      }
+                                         },
+                  "/api/auth/login":  {
+                                          "post":  {
+                                                       "tags":  [
+                                                                    "auth-controller"
+                                                                ],
+                                                       "operationId":  "login",
+                                                       "requestBody":  {
+                                                                           "content":  {
+                                                                                           "application/json":  {
+                                                                                                                    "schema":  {
+                                                                                                                                   "$ref":  "#/components/schemas/UsuarioLoginRequest"
+                                                                                                                               }
+                                                                                                                }
+                                                                                       },
+                                                                           "required":  true
+                                                                       },
+                                                       "responses":  {
+                                                                         "200":  {
+                                                                                     "description":  "OK",
+                                                                                     "content":  {
+                                                                                                     "*/*":  {
+                                                                                                                 "schema":  {
+                                                                                                                                "$ref":  "#/components/schemas/UsuarioLogeadoResponse"
+                                                                                                                            }
+                                                                                                             }
+                                                                                                 }
+                                                                                 }
+                                                                     }
+                                                   }
+                                      }
+              },
+    "components":  {
+                       "schemas":  {
+                                       "RefreshTokenRequest":  {
+                                                                   "required":  [
+                                                                                    "refreshToken"
+                                                                                ],
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "refreshToken":  {
+                                                                                                           "type":  "string"
+                                                                                                       }
+                                                                                  }
+                                                               },
+                                       "TokenResponse":  {
+                                                             "type":  "object",
+                                                             "properties":  {
+                                                                                "accessToken":  {
+                                                                                                    "type":  "string"
+                                                                                                },
+                                                                                "refreshToken":  {
+                                                                                                     "type":  "string"
+                                                                                                 },
+                                                                                "tokenType":  {
+                                                                                                  "type":  "string"
+                                                                                              }
+                                                                            }
+                                                         },
+                                       "UsuarioRegistroRequest":  {
+                                                                      "required":  [
+                                                                                       "email",
+                                                                                       "password",
+                                                                                       "rol",
+                                                                                       "username"
+                                                                                   ],
+                                                                      "type":  "object",
+                                                                      "properties":  {
+                                                                                         "username":  {
+                                                                                                          "type":  "string"
+                                                                                                      },
+                                                                                         "password":  {
+                                                                                                          "type":  "string"
+                                                                                                      },
+                                                                                         "email":  {
+                                                                                                       "type":  "string"
+                                                                                                   },
+                                                                                         "rol":  {
+                                                                                                     "type":  "string"
+                                                                                                 }
+                                                                                     }
+                                                                  },
+                                       "UsuarioLoginRequest":  {
+                                                                   "required":  [
+                                                                                    "password",
+                                                                                    "username"
+                                                                                ],
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "username":  {
+                                                                                                       "type":  "string"
+                                                                                                   },
+                                                                                      "password":  {
+                                                                                                       "type":  "string"
+                                                                                                   }
+                                                                                  }
+                                                               },
+                                       "UsuarioLogeadoResponse":  {
+                                                                      "type":  "object",
+                                                                      "properties":  {
+                                                                                         "token":  {
+                                                                                                       "type":  "string"
+                                                                                                   },
+                                                                                         "username":  {
+                                                                                                          "type":  "string"
+                                                                                                      },
+                                                                                         "rol":  {
+                                                                                                     "type":  "string"
+                                                                                                 }
+                                                                                     }
+                                                                  }
+                                   }
+                   }
+}

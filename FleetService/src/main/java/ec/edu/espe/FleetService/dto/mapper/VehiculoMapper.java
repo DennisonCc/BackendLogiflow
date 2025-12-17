@@ -5,6 +5,7 @@ import ec.edu.espe.FleetService.dto.request.MotoRequest;
 import ec.edu.espe.FleetService.dto.request.VehiculoRequest;
 import ec.edu.espe.FleetService.dto.response.VehiculoResponseDto;
 import ec.edu.espe.FleetService.model.Camion;
+import ec.edu.espe.FleetService.model.EstadoVehiculo;
 import ec.edu.espe.FleetService.model.Moto;
 import ec.edu.espe.FleetService.model.Vehiculo;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ public class VehiculoMapper {
                     .placa(motoReq.getPlaca())
                     .marca(motoReq.getMarca())
                     .modelo(motoReq.getModelo())
+                    .estado(EstadoVehiculo.Disponible)
                     .cilindraje(String.valueOf(motoReq.getCilindraje()))
                     .tieneMaletero(motoReq.getTieneCajon())
                     .build();
@@ -29,12 +31,34 @@ public class VehiculoMapper {
                     .placa(camionReq.getPlaca())
                     .marca(camionReq.getMarca())
                     .modelo(camionReq.getModelo())
+                    .estado(EstadoVehiculo.Disponible)
                     .capacidadCarga(camionReq.getCapacidadCarga())
                     .numeroEjes(camionReq.getNumeroEjes())
                     .build();
-        } else {
-            throw new IllegalArgumentException("Tipo de vehículo desconocido");
+        } else if (request.getTipoVehiculo() != null) {
+            // Manejo de VehiculoRequest genérico con tipoVehiculo como String
+            String tipo = request.getTipoVehiculo().toUpperCase();
+            if ("MOTO".equals(tipo) || "MOTOCICLETA".equals(tipo)) {
+                return Moto.builder()
+                        .placa(request.getPlaca())
+                        .marca(request.getMarca())
+                        .modelo(request.getModelo())
+                        .estado(EstadoVehiculo.Disponible)
+                        .cilindraje("150") // Valor por defecto
+                        .tieneMaletero(false)
+                        .build();
+            } else if ("CAMION".equals(tipo) || "CAMIONETA".equals(tipo) || "AUTO".equals(tipo)) {
+                return Camion.builder()
+                        .placa(request.getPlaca())
+                        .marca(request.getMarca())
+                        .modelo(request.getModelo())
+                        .estado(EstadoVehiculo.Disponible)
+                        .capacidadCarga(request.getCapacidadCarga() != null ? request.getCapacidadCarga() : 0.0)
+                        .numeroEjes(2) // Valor por defecto
+                        .build();
+            }
         }
+        throw new IllegalArgumentException("Tipo de vehículo desconocido: " + request.getTipoVehiculo());
     }
 
     public VehiculoResponseDto toDto(Vehiculo vehiculo) {
@@ -47,7 +71,7 @@ public class VehiculoMapper {
                 .placa(vehiculo.getPlaca())
                 .marca(vehiculo.getMarca())
                 .modelo(vehiculo.getModelo())
-                .estado(vehiculo.getEstado().toString());
+                .estado(vehiculo.getEstado() != null ? vehiculo.getEstado().toString() : "Disponible");
 
         if (vehiculo instanceof Moto moto) {
             builder.tipoVehiculo("MOTO")

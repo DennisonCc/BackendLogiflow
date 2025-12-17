@@ -26,10 +26,10 @@ POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "admin123",
-  "email": "admin@logiflow.com",
-  "rol": "ADMIN"
+  "username": "gerente1",
+  "password": "gerente123",
+  "email": "gerente1@logiflow.com",
+  "rol": "Gerente"
 }
 ```
 
@@ -39,21 +39,16 @@ POST http://localhost:8081/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "admin123",
-  "email": "admin@logiflow.com",
-  "rol": "ADMIN"
+  "username": "gerente1",
+  "password": "gerente123",
+  "email": "gerente1@logiflow.com",
+  "rol": "Gerente"
 }
 ```
 
 **Respuesta:**
 ```json
-{
-  "id": 1,
-  "username": "admin",
-  "email": "admin@logiflow.com",
-  "rol": "ADMIN"
-}
+"Usuario registrado exitosamente"
 ```
 
 ---
@@ -67,8 +62,8 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "admin123"
+  "username": "gerente1",
+  "password": "gerente123"
 }
 ```
 
@@ -78,17 +73,17 @@ POST http://localhost:8081/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "admin123"
+  "username": "gerente1",
+  "password": "gerente123"
 }
 ```
 
 **Respuesta:**
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbCI6IkFETUlOIiwiaWF0IjoxNzM0Mzc...",
-  "username": "admin",
-  "rol": "ADMIN"
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjbGllbnRlMSIsInJvbCI6IkNsaWVudGUiLCJpYXQiOjE3MzQzNy...",
+  "username": "cliente1",
+  "rol": "Cliente"
 }
 ```
 
@@ -139,12 +134,10 @@ Content-Type: application/json
 
 {
   "clienteId": 1,
-  "direccionOrigen": "Av. Amazonas N24-03, Quito",
-  "direccionDestino": "La Carolina, Quito",
+  "direccionOrigen": "Quito Norte",
+  "direccionDestino": "Quito Sur",
   "tipoEntrega": "Urbana",
-  "descripcionPaquete": "Documentos importantes",
-  "peso": 2.5,
-  "dimensiones": "30x20x10 cm"
+  "descripcionPaquete": "Documentos importantes"
 }
 ```
 
@@ -156,31 +149,37 @@ Content-Type: application/json
 
 {
   "clienteId": 1,
-  "direccionOrigen": "Av. Amazonas N24-03, Quito",
-  "direccionDestino": "La Carolina, Quito",
+  "direccionOrigen": "Quito Norte",
+  "direccionDestino": "Quito Sur",
   "tipoEntrega": "Urbana",
-  "descripcionPaquete": "Documentos importantes",
-  "peso": 2.5,
-  "dimensiones": "30x20x10 cm"
+  "descripcionPaquete": "Documentos importantes"
 }
 ```
 
-**Tipos de Entrega disponibles:**
-- `Urbana` - Dentro de la ciudad
-- `Municipal` - Entre ciudades del mismo municipio
-- `Interprovincial` - Entre provincias
+**Tipos de Entrega y Reglas de Cobertura:**
+
+- **`Urbana`** - Solo dentro de Quito
+  - Ambas direcciones deben contener "Quito"
+  - Ejemplo: "Quito Norte" → "Quito Sur"
+
+- **`Municipal`** - Entre cantones con cobertura
+  - Cantones disponibles: QUITO, GUAYAQUIL, CUENCA, AMBATO, IBARRA, MANTA, MACHALA, SANTO DOMINGO, LATACUNGA
+  - Ejemplo: "Centro de Guayaquil" → "Norte de Cuenca"
+
+- **`Interprovincial`** - Entre provincias con cobertura
+  - Provincias disponibles: PICHINCHA, GUAYAS, AZUAY, TUNGURAHUA, IMBABURA, MANABI, EL ORO, SANTO DOMINGO, COTOPAXI
+  - Las direcciones deben contener el nombre de la provincia
+  - Ejemplo: "Quito, Pichincha" → "Guayaquil, Guayas"
 
 **Respuesta:**
 ```json
 {
   "id": 1,
   "clienteId": 1,
-  "direccionOrigen": "Av. Amazonas N24-03, Quito",
-  "direccionDestino": "La Carolina, Quito",
+  "direccionOrigen": "Quito Norte",
+  "direccionDestino": "Quito Sur",
   "tipoEntrega": "Urbana",
   "descripcionPaquete": "Documentos importantes",
-  "peso": 2.5,
-  "dimensiones": "30x20x10 cm",
   "estado": "RECIBIDO",
   "fechaCreacion": "2025-12-16T15:30:00"
 }
@@ -232,7 +231,7 @@ Authorization: Bearer {tu-token}
 Content-Type: application/json
 
 {
-  "nuevoEstado": "EN_PROCESO"
+  "nuevoEstado": "Asignado"
 }
 ```
 
@@ -248,10 +247,10 @@ Content-Type: application/json
 ```
 
 **Estados disponibles:**
-- `RECIBIDO` - Pedido recibido
-- `EN_PROCESO` - En preparación
-- `ENTREGADO` - Entregado al cliente
-- `CANCELADO` - Pedido cancelado
+- `Recibido` - Pedido recibido
+- `Asignado` - En preparación
+- `Entregado` - Entregado al cliente
+- `Cancelado` - Pedido cancelado
 
 ---
 
@@ -699,7 +698,7 @@ Authorization: Bearer {tu-token}
 ### Paso 1: Registrar Usuario
 ```
 POST http://localhost:8080/api/auth/register
-Body: {"username": "cliente1", "password": "pass123", "email": "cliente1@test.com", "rol": "CLIENTE"}
+Body: {"username": "cliente1", "password": "pass123", "email": "cliente1@test.com", "rol": "Cliente"}
 ```
 
 ### Paso 2: Login
@@ -780,10 +779,12 @@ Authorization: Bearer {token}
 
 ## 🔑 Roles Disponibles
 
-- `ADMIN` - Acceso completo a todos los recursos
-- `SUPERVISOR` - Consulta de recursos y supervisión
-- `CLIENTE` - Gestión de sus propios pedidos
-- `REPARTIDOR` - Actualización de estados de pedidos asignados
+- `Cliente` - Gestión de sus propios pedidos
+- `Supervisor` - Consulta de recursos y supervisión
+- `Gerente` - Acceso completo a todos los recursos
+- `Repartidor` - Actualización de estados de pedidos asignados
+
+**Nota:** Los roles deben escribirse con la primera letra en mayúscula.
 
 ---
 

@@ -29,6 +29,7 @@ public class ProveedorJWT {
 
         return Jwts.builder()
                 .setSubject(username)
+                .setIssuer("logiflow-jwt") // Kong espera este claim
                 .setIssuedAt(new Date())
                 .setExpiration(fechaExpiracion)
                 .signWith(key(), SignatureAlgorithm.HS256)
@@ -41,6 +42,7 @@ public class ProveedorJWT {
 
         return Jwts.builder()
                 .setSubject(username)
+                .setIssuer("logiflow-jwt") // Kong espera este claim
                 .setIssuedAt(new Date())
                 .setExpiration(fechaExpiracion)
                 .signWith(key(), SignatureAlgorithm.HS256)
@@ -61,7 +63,8 @@ public class ProveedorJWT {
     }
 
     private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        // Kong espera el secret como string hexadecimal, no como Base64 decodificado
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     public String obtenerUsernameDelJWT(String token) {

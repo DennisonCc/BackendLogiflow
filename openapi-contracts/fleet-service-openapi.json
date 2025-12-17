@@ -1,0 +1,482 @@
+﻿{
+    "openapi":  "3.0.1",
+    "info":  {
+                 "title":  "FleetService API",
+                 "description":  "API de gestiÃ³n de flota (vehÃ­culos y repartidores) para LogiFlow",
+                 "contact":  {
+                                 "name":  "LogiFlow Team",
+                                 "email":  "support@logiflow.com"
+                             },
+                 "version":  "1.0"
+             },
+    "servers":  [
+                    {
+                        "url":  "http://localhost:8084",
+                        "description":  "Generated server url"
+                    }
+                ],
+    "paths":  {
+                  "/api/fleet/repartidores/{id}":  {
+                                                       "get":  {
+                                                                   "tags":  [
+                                                                                "fleet-controller"
+                                                                            ],
+                                                                   "operationId":  "obtenerRepartidor",
+                                                                   "parameters":  [
+                                                                                      {
+                                                                                          "name":  "id",
+                                                                                          "in":  "path",
+                                                                                          "required":  true,
+                                                                                          "schema":  {
+                                                                                                         "type":  "integer",
+                                                                                                         "format":  "int64"
+                                                                                                     }
+                                                                                      }
+                                                                                  ],
+                                                                   "responses":  {
+                                                                                     "200":  {
+                                                                                                 "description":  "OK",
+                                                                                                 "content":  {
+                                                                                                                 "*/*":  {
+                                                                                                                             "schema":  {
+                                                                                                                                            "$ref":  "#/components/schemas/Repartidor"
+                                                                                                                                        }
+                                                                                                                         }
+                                                                                                             }
+                                                                                             }
+                                                                                 }
+                                                               },
+                                                       "put":  {
+                                                                   "tags":  [
+                                                                                "fleet-controller"
+                                                                            ],
+                                                                   "operationId":  "actualizarRepartidor",
+                                                                   "parameters":  [
+                                                                                      {
+                                                                                          "name":  "id",
+                                                                                          "in":  "path",
+                                                                                          "required":  true,
+                                                                                          "schema":  {
+                                                                                                         "type":  "integer",
+                                                                                                         "format":  "int64"
+                                                                                                     }
+                                                                                      }
+                                                                                  ],
+                                                                   "requestBody":  {
+                                                                                       "content":  {
+                                                                                                       "application/json":  {
+                                                                                                                                "schema":  {
+                                                                                                                                               "$ref":  "#/components/schemas/RepartidorRequest"
+                                                                                                                                           }
+                                                                                                                            }
+                                                                                                   },
+                                                                                       "required":  true
+                                                                                   },
+                                                                   "responses":  {
+                                                                                     "200":  {
+                                                                                                 "description":  "OK",
+                                                                                                 "content":  {
+                                                                                                                 "*/*":  {
+                                                                                                                             "schema":  {
+                                                                                                                                            "$ref":  "#/components/schemas/Repartidor"
+                                                                                                                                        }
+                                                                                                                         }
+                                                                                                             }
+                                                                                             }
+                                                                                 }
+                                                               },
+                                                       "delete":  {
+                                                                      "tags":  [
+                                                                                   "fleet-controller"
+                                                                               ],
+                                                                      "operationId":  "eliminarRepartidor",
+                                                                      "parameters":  [
+                                                                                         {
+                                                                                             "name":  "id",
+                                                                                             "in":  "path",
+                                                                                             "required":  true,
+                                                                                             "schema":  {
+                                                                                                            "type":  "integer",
+                                                                                                            "format":  "int64"
+                                                                                                        }
+                                                                                         }
+                                                                                     ],
+                                                                      "responses":  {
+                                                                                        "200":  {
+                                                                                                    "description":  "OK",
+                                                                                                    "content":  {
+                                                                                                                    "*/*":  {
+                                                                                                                                "schema":  {
+                                                                                                                                               "type":  "object"
+                                                                                                                                           }
+                                                                                                                            }
+                                                                                                                }
+                                                                                                }
+                                                                                    }
+                                                                  }
+                                                   },
+                  "/api/fleet/vehiculos":  {
+                                               "get":  {
+                                                           "tags":  [
+                                                                        "fleet-controller"
+                                                                    ],
+                                                           "operationId":  "listarVehiculos",
+                                                           "responses":  {
+                                                                             "200":  {
+                                                                                         "description":  "OK",
+                                                                                         "content":  {
+                                                                                                         "*/*":  {
+                                                                                                                     "schema":  {
+                                                                                                                                    "type":  "array",
+                                                                                                                                    "items":  {
+                                                                                                                                                  "$ref":  "#/components/schemas/VehiculoResponseDto"
+                                                                                                                                              }
+                                                                                                                                }
+                                                                                                                 }
+                                                                                                     }
+                                                                                     }
+                                                                         }
+                                                       },
+                                               "post":  {
+                                                            "tags":  [
+                                                                         "fleet-controller"
+                                                                     ],
+                                                            "operationId":  "crearVehiculo",
+                                                            "requestBody":  {
+                                                                                "content":  {
+                                                                                                "application/json":  {
+                                                                                                                         "schema":  {
+                                                                                                                                        "$ref":  "#/components/schemas/VehiculoRequest"
+                                                                                                                                    }
+                                                                                                                     }
+                                                                                            },
+                                                                                "required":  true
+                                                                            },
+                                                            "responses":  {
+                                                                              "200":  {
+                                                                                          "description":  "OK",
+                                                                                          "content":  {
+                                                                                                          "*/*":  {
+                                                                                                                      "schema":  {
+                                                                                                                                     "$ref":  "#/components/schemas/VehiculoResponseDto"
+                                                                                                                                 }
+                                                                                                                  }
+                                                                                                      }
+                                                                                      }
+                                                                          }
+                                                        }
+                                           },
+                  "/api/fleet/repartidores":  {
+                                                  "get":  {
+                                                              "tags":  [
+                                                                           "fleet-controller"
+                                                                       ],
+                                                              "operationId":  "listarRepartidores",
+                                                              "responses":  {
+                                                                                "200":  {
+                                                                                            "description":  "OK",
+                                                                                            "content":  {
+                                                                                                            "*/*":  {
+                                                                                                                        "schema":  {
+                                                                                                                                       "type":  "array",
+                                                                                                                                       "items":  {
+                                                                                                                                                     "$ref":  "#/components/schemas/Repartidor"
+                                                                                                                                                 }
+                                                                                                                                   }
+                                                                                                                    }
+                                                                                                        }
+                                                                                        }
+                                                                            }
+                                                          },
+                                                  "post":  {
+                                                               "tags":  [
+                                                                            "fleet-controller"
+                                                                        ],
+                                                               "operationId":  "crearRepartidor",
+                                                               "requestBody":  {
+                                                                                   "content":  {
+                                                                                                   "application/json":  {
+                                                                                                                            "schema":  {
+                                                                                                                                           "$ref":  "#/components/schemas/RepartidorRequest"
+                                                                                                                                       }
+                                                                                                                        }
+                                                                                               },
+                                                                                   "required":  true
+                                                                               },
+                                                               "responses":  {
+                                                                                 "200":  {
+                                                                                             "description":  "OK",
+                                                                                             "content":  {
+                                                                                                             "*/*":  {
+                                                                                                                         "schema":  {
+                                                                                                                                        "$ref":  "#/components/schemas/Repartidor"
+                                                                                                                                    }
+                                                                                                                     }
+                                                                                                         }
+                                                                                         }
+                                                                             }
+                                                           }
+                                              },
+                  "/api/fleet/vehiculos/{id}/estado":  {
+                                                           "patch":  {
+                                                                         "tags":  [
+                                                                                      "fleet-controller"
+                                                                                  ],
+                                                                         "operationId":  "actualizarEstado",
+                                                                         "parameters":  [
+                                                                                            {
+                                                                                                "name":  "id",
+                                                                                                "in":  "path",
+                                                                                                "required":  true,
+                                                                                                "schema":  {
+                                                                                                               "type":  "integer",
+                                                                                                               "format":  "int64"
+                                                                                                           }
+                                                                                            }
+                                                                                        ],
+                                                                         "requestBody":  {
+                                                                                             "content":  {
+                                                                                                             "application/json":  {
+                                                                                                                                      "schema":  {
+                                                                                                                                                     "$ref":  "#/components/schemas/ActualizarEstadoVehiculoRequest"
+                                                                                                                                                 }
+                                                                                                                                  }
+                                                                                                         },
+                                                                                             "required":  true
+                                                                                         },
+                                                                         "responses":  {
+                                                                                           "200":  {
+                                                                                                       "description":  "OK",
+                                                                                                       "content":  {
+                                                                                                                       "*/*":  {
+                                                                                                                                   "schema":  {
+                                                                                                                                                  "$ref":  "#/components/schemas/VehiculoResponseDto"
+                                                                                                                                              }
+                                                                                                                               }
+                                                                                                                   }
+                                                                                                   }
+                                                                                       }
+                                                                     }
+                                                       },
+                  "/api/fleet/vehiculos/{id}":  {
+                                                    "get":  {
+                                                                "tags":  [
+                                                                             "fleet-controller"
+                                                                         ],
+                                                                "operationId":  "obtenerVehiculo",
+                                                                "parameters":  [
+                                                                                   {
+                                                                                       "name":  "id",
+                                                                                       "in":  "path",
+                                                                                       "required":  true,
+                                                                                       "schema":  {
+                                                                                                      "type":  "integer",
+                                                                                                      "format":  "int64"
+                                                                                                  }
+                                                                                   }
+                                                                               ],
+                                                                "responses":  {
+                                                                                  "200":  {
+                                                                                              "description":  "OK",
+                                                                                              "content":  {
+                                                                                                              "*/*":  {
+                                                                                                                          "schema":  {
+                                                                                                                                         "$ref":  "#/components/schemas/VehiculoResponseDto"
+                                                                                                                                     }
+                                                                                                                      }
+                                                                                                          }
+                                                                                          }
+                                                                              }
+                                                            },
+                                                    "delete":  {
+                                                                   "tags":  [
+                                                                                "fleet-controller"
+                                                                            ],
+                                                                   "operationId":  "eliminarVehiculo",
+                                                                   "parameters":  [
+                                                                                      {
+                                                                                          "name":  "id",
+                                                                                          "in":  "path",
+                                                                                          "required":  true,
+                                                                                          "schema":  {
+                                                                                                         "type":  "integer",
+                                                                                                         "format":  "int64"
+                                                                                                     }
+                                                                                      }
+                                                                                  ],
+                                                                   "responses":  {
+                                                                                     "200":  {
+                                                                                                 "description":  "OK",
+                                                                                                 "content":  {
+                                                                                                                 "*/*":  {
+                                                                                                                             "schema":  {
+                                                                                                                                            "type":  "object"
+                                                                                                                                        }
+                                                                                                                         }
+                                                                                                             }
+                                                                                             }
+                                                                                 }
+                                                               }
+                                                }
+              },
+    "components":  {
+                       "schemas":  {
+                                       "RepartidorRequest":  {
+                                                                 "required":  [
+                                                                                  "cedula",
+                                                                                  "nombre"
+                                                                              ],
+                                                                 "type":  "object",
+                                                                 "properties":  {
+                                                                                    "nombre":  {
+                                                                                                   "type":  "string"
+                                                                                               },
+                                                                                    "cedula":  {
+                                                                                                   "type":  "string"
+                                                                                               },
+                                                                                    "telefono":  {
+                                                                                                     "type":  "string"
+                                                                                                 },
+                                                                                    "licencia":  {
+                                                                                                     "type":  "string"
+                                                                                                 },
+                                                                                    "vehiculoId":  {
+                                                                                                       "type":  "integer",
+                                                                                                       "format":  "int64"
+                                                                                                   }
+                                                                                }
+                                                             },
+                                       "Repartidor":  {
+                                                          "type":  "object",
+                                                          "properties":  {
+                                                                             "id":  {
+                                                                                        "type":  "integer",
+                                                                                        "format":  "int64"
+                                                                                    },
+                                                                             "nombre":  {
+                                                                                            "type":  "string"
+                                                                                        },
+                                                                             "cedula":  {
+                                                                                            "type":  "string"
+                                                                                        },
+                                                                             "telefono":  {
+                                                                                              "type":  "string"
+                                                                                          },
+                                                                             "licencia":  {
+                                                                                              "type":  "string"
+                                                                                          },
+                                                                             "vehiculo":  {
+                                                                                              "$ref":  "#/components/schemas/Vehiculo"
+                                                                                          }
+                                                                         }
+                                                      },
+                                       "Vehiculo":  {
+                                                        "type":  "object",
+                                                        "properties":  {
+                                                                           "id":  {
+                                                                                      "type":  "integer",
+                                                                                      "format":  "int64"
+                                                                                  },
+                                                                           "placa":  {
+                                                                                         "type":  "string"
+                                                                                     },
+                                                                           "marca":  {
+                                                                                         "type":  "string"
+                                                                                     },
+                                                                           "modelo":  {
+                                                                                          "type":  "string"
+                                                                                      },
+                                                                           "estado":  {
+                                                                                          "type":  "string",
+                                                                                          "enum":  [
+                                                                                                       "Disponible",
+                                                                                                       "EnRuta",
+                                                                                                       "Mantenimiento"
+                                                                                                   ]
+                                                                                      }
+                                                                       }
+                                                    },
+                                       "VehiculoRequest":  {
+                                                               "required":  [
+                                                                                "capacidadCarga",
+                                                                                "marca",
+                                                                                "modelo",
+                                                                                "placa"
+                                                                            ],
+                                                               "type":  "object",
+                                                               "properties":  {
+                                                                                  "placa":  {
+                                                                                                "type":  "string"
+                                                                                            },
+                                                                                  "marca":  {
+                                                                                                "type":  "string"
+                                                                                            },
+                                                                                  "modelo":  {
+                                                                                                 "type":  "string"
+                                                                                             },
+                                                                                  "capacidadCarga":  {
+                                                                                                         "type":  "number",
+                                                                                                         "format":  "double"
+                                                                                                     },
+                                                                                  "tipoVehiculo":  {
+                                                                                                       "type":  "string"
+                                                                                                   }
+                                                                              }
+                                                           },
+                                       "VehiculoResponseDto":  {
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "id":  {
+                                                                                                 "type":  "integer",
+                                                                                                 "format":  "int64"
+                                                                                             },
+                                                                                      "placa":  {
+                                                                                                    "type":  "string"
+                                                                                                },
+                                                                                      "marca":  {
+                                                                                                    "type":  "string"
+                                                                                                },
+                                                                                      "modelo":  {
+                                                                                                     "type":  "string"
+                                                                                                 },
+                                                                                      "estado":  {
+                                                                                                     "type":  "string"
+                                                                                                 },
+                                                                                      "tipoVehiculo":  {
+                                                                                                           "type":  "string"
+                                                                                                       },
+                                                                                      "cilindraje":  {
+                                                                                                         "type":  "string"
+                                                                                                     },
+                                                                                      "tieneMaletero":  {
+                                                                                                            "type":  "boolean"
+                                                                                                        },
+                                                                                      "capacidadCarga":  {
+                                                                                                             "type":  "number",
+                                                                                                             "format":  "double"
+                                                                                                         },
+                                                                                      "numeroEjes":  {
+                                                                                                         "type":  "integer",
+                                                                                                         "format":  "int32"
+                                                                                                     }
+                                                                                  }
+                                                               },
+                                       "ActualizarEstadoVehiculoRequest":  {
+                                                                               "required":  [
+                                                                                                "estado"
+                                                                                            ],
+                                                                               "type":  "object",
+                                                                               "properties":  {
+                                                                                                  "estado":  {
+                                                                                                                 "type":  "string",
+                                                                                                                 "enum":  [
+                                                                                                                              "Disponible",
+                                                                                                                              "EnRuta",
+                                                                                                                              "Mantenimiento"
+                                                                                                                          ]
+                                                                                                             }
+                                                                                              }
+                                                                           }
+                                   }
+                   }
+}

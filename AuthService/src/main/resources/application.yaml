@@ -21,3 +21,17 @@ jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration: 86400000 # 1 day in milliseconds
   refresh-expiration: 604800000 # 7 days in milliseconds
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  info:
+    title: AuthService API
+    description: Servicio de autenticación y gestión de usuarios LogiFlow
+    version: 1.0.0
+    contact:
+      name: Equipo LogiFlow
+      email: soporte@logiflow.com
