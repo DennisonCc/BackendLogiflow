@@ -3,6 +3,7 @@ package ec.edu.espe.FleetService.service.impl;
 import ec.edu.espe.FleetService.dto.mapper.VehiculoMapper;
 import ec.edu.espe.FleetService.dto.request.RepartidorRequest;
 import ec.edu.espe.FleetService.dto.request.VehiculoRequest;
+import ec.edu.espe.FleetService.dto.response.FlotaResumenDto;
 import ec.edu.espe.FleetService.model.EstadoVehiculo;
 import ec.edu.espe.FleetService.model.Repartidor;
 import ec.edu.espe.FleetService.model.Vehiculo;
@@ -122,5 +123,38 @@ public class FleetServiceImpl implements FleetService {
     public void eliminarRepartidor(Long id) {
         Repartidor repartidor = obtenerRepartidor(id);
         repartidorRepository.delete(repartidor);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FlotaResumenDto obtenerResumenFlota() {
+        long totalRepartidores = repartidorRepository.count();
+        long vehiculosActivos = vehiculoRepository.countByEstado(EstadoVehiculo.Disponible);
+        
+        // Contar repartidores por estado (simulado por ahora)
+        List<Repartidor> repartidores = repartidorRepository.findAll();
+        long repartidoresActivos = repartidores.stream()
+                .filter(r -> r.getVehiculo() != null && r.getVehiculo().getEstado() == EstadoVehiculo.Disponible)
+                .count();
+        
+        return FlotaResumenDto.builder()
+                .totalRepartidores((int) totalRepartidores)
+                .repartidoresActivos((int) repartidoresActivos)
+                .repartidoresDisponibles((int) repartidoresActivos) // Por ahora igual a activos
+                .repartidoresEnRuta(0) // Requiere integración con pedidos
+                .vehiculosActivos((int) vehiculosActivos)
+                .pedidosEnCurso(0) // Requiere integración con pedidos
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Repartidor> obtenerRepartidoresActivos(Long zonaId) {
+        // Por ahora retorna todos los repartidores con vehículos activos
+        // En el futuro se puede filtrar por zonaId
+        List<Repartidor> todos = repartidorRepository.findAll();
+        return todos.stream()
+                .filter(r -> r.getVehiculo() != null && r.getVehiculo().getEstado() == EstadoVehiculo.Disponible)
+                .toList();
     }
 }

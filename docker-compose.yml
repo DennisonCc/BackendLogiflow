@@ -180,6 +180,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pedidodb:5432/pedidodb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: logiflow-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: logiflow
+      SPRING_RABBITMQ_PASSWORD: logiflow123
     depends_on:
       pedidodb:
         condition: service_healthy
@@ -219,6 +223,37 @@ services:
     depends_on:
       fleetdb:
         condition: service_healthy
+    networks:
+      - logiflow-network
+    restart: unless-stopped
+
+  graphql-service:
+    build:
+      context: ./GraphQLService
+      dockerfile: Dockerfile
+    container_name: graphql-service
+    ports:
+      - "9090:8085"
+    environment:
+      PEDIDO_SERVICE_URL: http://pedido-service:8082
+      FLEET_SERVICE_URL: http://fleet-service:8084
+      BILLING_SERVICE_URL: http://billing-service:8083
+    networks:
+      - logiflow-network
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./NotificationService
+      dockerfile: Dockerfile
+    container_name: notification-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_RABBITMQ_HOST: logiflow-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: logiflow
+      SPRING_RABBITMQ_PASSWORD: logiflow123
     networks:
       - logiflow-network
     restart: unless-stopped

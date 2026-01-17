@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente WebSocket - LogiFlow</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@6.1.0/bundles/stomp.umd.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
+        .connected { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .disconnected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .controls { margin: 20px 0; }
+        button { padding: 10px 20px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-connect { background: #28a745; color: white; }
+        .btn-disconnect { background: #dc3545; color: white; }
+        .messages { border: 1px solid #ddd; height: 400px; overflow-y: auto; padding: 10px; background: #fafafa; font-family: 'Courier New', monospace; font-size: 12px; }
+        .message { margin: 5px 0; padding: 8px; border-left: 3px solid #007bff; background: white; }
+        .message.created { border-left-color: #28a745; }
+        .message.updated { border-left-color: #ffc107; }
+        .message.error { border-left-color: #dc3545; }
+        .timestamp { color: #6c757d; font-size: 11px; }
+        .input-group { margin: 10px 0; }
+        label { display: inline-block; width: 150px; font-weight: bold; }
+        input[type="text"] { padding: 5px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Cliente WebSocket - LogiFlow Fase 2</h1>
+        
+        <div id="status" class="status disconnected">
+            ⚠️ DESCONECTADO
+        </div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>URL WebSocket:</label>
+                <input type="text" id="wsUrl" value="http://localhost:8085/ws" />
+            </div>
+            <div class="input-group">
+                <label>Suscribirse a:</label>
+                <input type="text" id="topic" value="/topic/pedidos" placeholder="/topic/pedidos" />
+            </div>
+            <button class="btn-connect" onclick="connect()">🔌 Conectar</button>
+            <button class="btn-disconnect" onclick="disconnect()">🔌 Desconectar</button>
+            <button onclick="clearMessages()">🗑️ Limpiar</button>
+        </div>
+
+        <h3>📨 Mensajes Recibidos:</h3>
+        <div id="messages" class="messages">
+            <div style="color: #6c757d;">Esperando conexión...</div>
+        </div>
+
+        <h3>📊 Estadísticas:</h3>
+        <div style="padding: 10px; background: #e9ecef; border-radius: 4px;">
+            <div>Total mensajes: <span id="totalMessages">0</span></div>
+            <div>Creados: <span id="createdCount">0</span> | Actualizados: <span id="updatedCount">0</span></div>
+            <div>Tiempo de conexión: <span id="connectionTime">--</span></div>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let subscription = null;
+        let messageCount = 0;
+        let createdCount = 0;
+        let updatedCount = 0;
+        let connectionStart = null;
+
+        function connect() {
+            const wsUrl = document.getElementById('wsUrl').value;
+            const topic = document.getElementById('topic').value;
+
+            addMessage('ℹ️ Conectando a ' + wsUrl + '...', 'info');
+
+            const socket = new SockJS(wsUrl);
+            stompClient = new StompJs.Client({
+                webSocketFactory: () => socket,
+                debug: (str) => console.log(str),
+                reconnectDelay: 5000,
+                heartbeatIncoming: 4000,
+                heartbeatOutgoing: 4000
+            });
+
+            stompClient.onConnect = function(frame) {
+                connectionStart = new Date();
+                updateStatus(true);
+                addMessage('✅ Conectado exitosamente', 'success');
+                
+                // Suscribirse al tópico
+                subscription = stompClient.subscribe(topic, function(message) {
+                    onMessageReceived(message);
+                });
+                
+                addMessage('📡 Suscrito a: ' + topic, 'info');
+                updateConnectionTime();
+            };
+
+            stompClient.onStompError = function(frame) {
+                addMessage('❌ Error STOMP: ' + frame.headers['message'], 'error');
+                updateStatus(false);
+            };
+
+            stompClient.activate();
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                if (subscription) {
+                    subscription.unsubscribe();
+                }
+                stompClient.deactivate();
+                updateStatus(false);
+                addMessage('🔌 Desconectado', 'info');
+            }
+        }
+
+        function onMessageReceived(message) {
+            messageCount++;
+            const payload = JSON.parse(message.body);
+            
+            let messageClass = 'message';
+            if (payload.tipo === 'PEDIDO_CREADO') {
+                createdCount++;
+                messageClass += ' created';
+            } else if (payload.tipo === 'PEDIDO_ESTADO_ACTUALIZADO') {
+                updatedCount++;
+                messageClass += ' updated';
+            }
+
+            const timestamp = new Date().toLocaleTimeString('es-ES');
+            const messageHtml = `
+                <div class="${messageClass}">
+                    <div class="timestamp">${timestamp}</div>
+                    <strong>${payload.tipo}</strong><br/>
+                    Pedido ID: ${payload.pedidoId}<br/>
+                    ${payload.estadoNuevo ? 'Estado: ' + payload.estadoAnterior + ' → ' + payload.estadoNuevo : 'Estado: ' + payload.estado}<br/>
+                    ${payload.mensaje}
+                </div>
+            `;
+            
+            document.getElementById('messages').innerHTML += messageHtml;
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+            
+            updateStats();
+        }
+
+        function addMessage(text, type) {
+            const timestamp = new Date().toLocaleTimeString('es-ES');
+            const messageHtml = `
+                <div class="message ${type}">
+                    <div class="timestamp">${timestamp}</div>
+                    ${text}
+                </div>
+            `;
+            document.getElementById('messages').innerHTML += messageHtml;
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            const statusDiv = document.getElementById('status');
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = '✅ CONECTADO';
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = '⚠️ DESCONECTADO';
+                connectionStart = null;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalMessages').textContent = messageCount;
+            document.getElementById('createdCount').textContent = createdCount;
+            document.getElementById('updatedCount').textContent = updatedCount;
+        }
+
+        function updateConnectionTime() {
+            if (connectionStart) {
+                const elapsed = Math.floor((new Date() - connectionStart) / 1000);
+                document.getElementById('connectionTime').textContent = elapsed + 's';
+                setTimeout(updateConnectionTime, 1000);
+            }
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '<div style="color: #6c757d;">Mensajes limpiados...</div>';
+            messageCount = 0;
+            createdCount = 0;
+            updatedCount = 0;
+            updateStats();
+        }
+    </script>
+</body>
+</html>

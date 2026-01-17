@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "motos")
+@DiscriminatorValue("MOTO")
 @PrimaryKeyJoinColumn(name = "vehiculo_id") // La llave foránea que une con la tabla padre
 @Data
 @EqualsAndHashCode(callSuper = true)

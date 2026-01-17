@@ -1,0 +1,94 @@
+@startuml Flujo de Eventos - Fase 2
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Flujo de Eventos: Actualización de Estado de Pedido
+autonumber
+
+actor "Supervisor" as supervisor
+participant "API Gateway\n(Kong:8080)" as gateway
+participant "PedidoService\n:8082" as pedido
+participant "PostgreSQL\n(pedidodb)" as db
+participant "RabbitMQ\n:5673" as rabbit
+queue "pedido.estado\n.actualizado" as queue
+participant "Notification\nService\n:8085" as notification
+participant "WebSocket\nServer" as websocket
+actor "Cliente\nWebSocket" as client
+
+== Fase 1: Actualización REST ==
+supervisor -> gateway: PATCH /api/pedidos/123/estado\n{"estado":"EN_RUTA","repartidorId":5}
+activate gateway
+gateway -> gateway: Validar JWT
+gateway -> pedido: Forward request
+activate pedido
+
+pedido -> db: SELECT pedido WHERE id=123
+db --> pedido: Pedido(estado='PENDIENTE')
+
+pedido -> pedido: Capturar estadoAnterior
+pedido -> db: UPDATE pedido\nSET estado='EN_RUTA',\nrepartidorId=5
+db --> pedido: 1 row updated
+
+== Fase 2: Publicación de Evento ==
+pedido -> pedido: Crear PedidoEstadoActualizadoEvent\n{\n  messageId: UUID,\n  pedidoId: 123,\n  estadoAnterior: 'PENDIENTE',\n  estadoNuevo: 'EN_RUTA',\n  repartidorId: 5\n}
+
+pedido -> rabbit: Publish to exchange:\n'logiflow.events'\nrouting key:\n'pedido.estado.actualizado'
+activate rabbit
+rabbit -> queue: Route message
+note right of rabbit
+  Mensaje persiste en disco
+  TTL: 24 horas
+  Max length: 10,000 msgs
+end note
+
+pedido --> gateway: 200 OK\n{"id":123,"estado":"EN_RUTA"}
+deactivate pedido
+gateway --> supervisor: 200 OK
+deactivate gateway
+
+== Fase 3: Consumo Asíncrono ==
+queue -> notification: @RabbitListener\nconsumeMessage()
+activate notification
+
+notification -> notification: Verificar messageId\nen Set<String> (dedup)
+
+alt Mensaje nuevo
+  notification -> notification: Agregar messageId\nal Set
+  
+  notification -> notification: Simular SMS/Email\nLOG: "📧 Pedido #123\ncambió a EN_RUTA"
+  
+  == Fase 4: Broadcast WebSocket ==
+  notification -> websocket: convertAndSend(\n"/topic/pedido/123",\nnotificationDTO)
+  activate websocket
+  
+  websocket -> client: STOMP MESSAGE\n{\n  "tipo":"PEDIDO_ESTADO_ACTUALIZADO",\n  "pedidoId":123,\n  "estadoAnterior":"PENDIENTE",\n  "estadoNuevo":"EN_RUTA",\n  "repartidorId":5,\n  "timestamp":"2026-01-11T18:05:23"\n}
+  activate client
+  client -> client: Actualizar UI\n(< 2 segundos)
+  deactivate client
+  
+  notification -> websocket: convertAndSend(\n"/topic/pedidos",\nnotificationDTO)
+  websocket -> supervisor: Broadcast general
+  
+  deactivate websocket
+  
+  notification -> rabbit: ACK message
+  deactivate notification
+  
+else Mensaje duplicado
+  notification -> notification: LOG: "⚠️ Mensaje\nduplicado rechazado"
+  notification -> rabbit: ACK (descarta)
+end
+
+deactivate rabbit
+
+note over supervisor, client
+  **Tiempo total: < 2 segundos**
+  - REST call: ~100ms
+  - RabbitMQ routing: ~10ms
+  - Consumer processing: ~50ms
+  - WebSocket broadcast: ~5ms
+  **Total: ~165ms**
+end note
+
+@enduml

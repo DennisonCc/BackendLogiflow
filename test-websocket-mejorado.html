@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente WebSocket - Prueba Fase 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .messages {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 6px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 3px solid #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 4px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+        }
+        
+        .timestamp {
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+        
+        .event-type {
+            color: #dcdcaa;
+            font-weight: bold;
+        }
+        
+        .pedido-id {
+            color: #ce9178;
+            font-weight: bold;
+        }
+        
+        .estado {
+            color: #569cd6;
+            font-weight: bold;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .info-box strong {
+            color: #2196F3;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Cliente WebSocket - Prueba Fase 2</h1>
+            <p>Validación: REST → RabbitMQ → NotificationService → WebSocket < 2 segundos</p>
+        </div>
+        
+        <div class="content">
+            <!-- Panel de Control -->
+            <div class="panel">
+                <h2>🎮 Control de Conexión</h2>
+                
+                <div id="status" class="status disconnected">● Desconectado</div>
+                
+                <div class="button-group">
+                    <button onclick="conectar()" id="btnConectar">🔌 Conectar</button>
+                    <button onclick="desconectar()" id="btnDesconectar" disabled>🔌 Desconectar</button>
+                    <button onclick="limpiarMensajes()">🗑️ Limpiar</button>
+                </div>
+                
+                <div class="info-box">
+                    <strong>📡 Endpoint:</strong> ws://localhost:8085/ws<br>
+                    <strong>📢 Suscripciones:</strong>
+                    <ul style="margin: 5px 0 0 20px;">
+                        <li>/topic/pedidos (todos)</li>
+                        <li>/topic/pedido/{id} (específico)</li>
+                        <li>/topic/ubicacion/{id} (repartidor)</li>
+                    </ul>
+                </div>
+                
+                <h2 style="margin-top: 20px;">📊 Estadísticas</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalMensajes">0</div>
+                        <div class="stat-label">Mensajes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pedidosMensajes">0</div>
+                        <div class="stat-label">Pedidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="ubicacionMensajes">0</div>
+                        <div class="stat-label">Ubicaciones</div>
+                    </div>
+                </div>
+                
+                <h2 style="margin-top: 20px;">🔐 Autenticación</h2>
+                <input type="text" id="username" placeholder="Usuario (ej: testuser)" value="testuser">
+                <input type="password" id="password" placeholder="Password (ej: Test1234!)" value="Test1234!">
+                <button onclick="login()">🔑 Login</button>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 4px;">
+                    <strong>⚠️ Si el login falla (CORS):</strong><br>
+                    <small>1. Haz login en Postman<br>
+                    2. Copia el token de la respuesta<br>
+                    3. Pégalo aquí abajo:</small>
+                </div>
+                
+                <input type="text" id="manualToken" placeholder="Pega el token JWT aquí" style="margin-top: 10px; font-size: 11px;">
+                <button onclick="usarTokenManual()">✅ Usar este Token</button>
+                
+                <div id="tokenInfo" style="display: none; margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 4px; font-size: 12px;">
+                    <strong>Token obtenido:</strong><br>
+                    <code id="tokenDisplay" style="word-break: break-all;"></code>
+                </div>
+                
+                <h2 style="margin-top: 20px;">🧪 Prueba Rápida</h2>
+                <input type="number" id="pedidoId" placeholder="ID del Pedido (ej: 1)" value="1">
+                <div class="button-group">
+                    <button onclick="suscribirPedido()">📌 Suscribir Pedido</button>
+                    <button onclick="probarConPowerShell()">▶️ Ejecutar Script</button>
+                </div>
+                
+                <div class="info-box" style="background: #fff3cd; border-left-color: #ffc107;">
+                    <strong>⚡ Instrucciones:</strong><br>
+                    1. Click en "� Login" (admin/admin123)<br>
+                    2. Click en "🔌 Conectar"<br>
+                    3. En PowerShell ejecutar:<br>
+                    <code style="background: #f8f9fa; padding: 2px 5px; border-radius: 3px;">.\test-fase2-completo.ps1</code><br>
+                    4. Observar notificación aquí en < 2s
+                </div>
+            </div>
+            
+            <!-- Panel de Mensajes -->
+            <div class="panel">
+                <h2>📨 Mensajes Recibidos</h2>
+                <div id="mensajes" class="messages">
+                    <div style="color: #888; text-align: center; padding: 20px;">
+                        Esperando conexión WebSocket...<br>
+                        <small>Los mensajes aparecerán aquí en tiempo real</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    
+    <script>
+        let stompClient = null;
+        let totalMensajes = 0;
+        let pedidosMensajes = 0;
+        let ubicacionMensajes = 0;
+        let conectadoTime = null;
+        let jwtToken = null;
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                agregarMensaje('🔄 Autenticando...', 'SYSTEM');
+                
+                const response = await fetch('http://localhost:8081/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombreUsuario: username,  // AuthService espera "nombreUsuario"
+                        password: password
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error('Login fallido: ' + errorText);
+                }
+                
+                const data = await response.json();
+                jwtToken = data.token;
+                
+                document.getElementById('tokenInfo').style.display = 'block';
+                document.getElementById('tokenDisplay').textContent = jwtToken.substring(0, 50) + '...';
+                
+                agregarMensaje(`✅ Login exitoso: ${data.nombreUsuario}`, 'SUCCESS');
+                agregarMensaje('💡 Ahora puedes conectar al WebSocket', 'INFO');
+                
+            } catch (error) {
+                agregarMensaje('❌ Error en login: ' + error.message, 'ERROR');
+                agregarMensaje('💡 Usa Postman para obtener el token y pégalo manualmente', 'INFO');
+            }
+        }
+
+        function usarTokenManual() {
+            const token = document.getElementById('manualToken').value.trim();
+            
+            if (!token) {
+                alert('⚠️ Pega el token JWT primero');
+                return;
+            }
+            
+            jwtToken = token;
+            
+            document.getElementById('tokenInfo').style.display = 'block';
+            document.getElementById('tokenDisplay').textContent = jwtToken.substring(0, 50) + '...';
+            
+            agregarMensaje('✅ Token configurado manualmente', 'SUCCESS');
+            agregarMensaje('💡 Ahora puedes conectar al WebSocket', 'INFO');
+        }
+
+        function conectar() {
+            if (!jwtToken) {
+                alert('⚠️ Debes hacer login primero para obtener el token JWT');
+                return;
+            }
+            
+            const socket = new SockJS('http://localhost:8085/ws');
+            stompClient = Stomp.over(socket);
+            
+            // Deshabilitar logs de STOMP
+            stompClient.debug = null;
+            
+            agregarMensaje('🔄 Conectando con JWT...', 'SYSTEM');
+            
+            // Enviar token JWT en el header de conexión
+            const headers = {
+                'Authorization': 'Bearer ' + jwtToken
+            };
+            
+            stompClient.connect(headers, function(frame) {
+                conectadoTime = new Date();
+                actualizarEstado(true);
+                agregarMensaje('✅ Conectado al WebSocket (autenticado)', 'SUCCESS');
+                
+                // Suscribirse a todos los pedidos
+                stompClient.subscribe('/topic/pedidos', function(mensaje) {
+                    procesarMensaje(mensaje, 'PEDIDO-GENERAL');
+                });
+                
+                agregarMensaje('📡 Suscrito a /topic/pedidos', 'INFO');
+                
+            }, function(error) {
+                actualizarEstado(false);
+                agregarMensaje('❌ Error de conexión: ' + error, 'ERROR');
+                agregarMensaje('💡 Verifica que el token JWT sea válido', 'INFO');
+            });
+        }
+
+        function desconectar() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+                actualizarEstado(false);
+                agregarMensaje('👋 Desconectado', 'SYSTEM');
+            }
+        }
+
+        function suscribirPedido() {
+            const pedidoId = document.getElementById('pedidoId').value;
+            if (!stompClient || !stompClient.connected) {
+                alert('⚠️ Conecta primero al WebSocket');
+                return;
+            }
+            
+            stompClient.subscribe('/topic/pedido/' + pedidoId, function(mensaje) {
+                procesarMensaje(mensaje, 'PEDIDO-ESPECÍFICO');
+            });
+            
+            agregarMensaje('📡 Suscrito a /topic/pedido/' + pedidoId, 'INFO');
+        }
+
+        function procesarMensaje(mensaje, tipo) {
+            const data = JSON.parse(mensaje.body);
+            const ahora = new Date();
+            
+            // Calcular latencia
+            let latencia = '';
+            if (data.timestamp) {
+                const timestampMsg = new Date(data.timestamp);
+                const diff = ahora - timestampMsg;
+                latencia = ` (Latencia: ${diff}ms)`;
+            }
+            
+            totalMensajes++;
+            
+            if (tipo.includes('PEDIDO')) {
+                pedidosMensajes++;
+                const estadoAnterior = data.estadoAnterior || data.estadoPrevio || 'PENDIENTE';
+                const estadoNuevo = data.estadoNuevo || data.estado || 'DESCONOCIDO';
+                
+                agregarMensaje(
+                    `🚚 Pedido #${data.pedidoId}: ${estadoAnterior} → ${estadoNuevo}${latencia}`,
+                    tipo,
+                    data
+                );
+                
+                // Mostrar notificación push para cualquier cambio de estado
+                mostrarNotificacionPush(data.pedidoId, estadoNuevo, estadoAnterior);
+            } else if (tipo.includes('UBICACION')) {
+                ubicacionMensajes++;
+                agregarMensaje(
+                    `📍 Repartidor #${data.repartidorId}: (${data.latitud}, ${data.longitud})${latencia}`,
+                    tipo,
+                    data
+                );
+            }
+            
+            actualizarEstadisticas();
+        }
+
+        function agregarMensaje(texto, tipo, data = null) {
+            const mensajesDiv = document.getElementById('mensajes');
+            const timestamp = new Date().toLocaleTimeString('es-ES', { hour12: false });
+            
+            // Si es el primer mensaje, limpiar el placeholder
+            if (mensajesDiv.children.length === 1 && mensajesDiv.children[0].textContent.includes('Esperando')) {
+                mensajesDiv.innerHTML = '';
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            let html = `<span class="timestamp">[${timestamp}]</span> `;
+            html += `<span class="event-type">${tipo}:</span> ${texto}`;
+            
+            if (data) {
+                html += `<div style="margin-top: 5px; font-size: 11px; opacity: 0.8;">`;
+                html += JSON.stringify(data, null, 2);
+                html += `</div>`;
+            }
+            
+            messageDiv.innerHTML = html;
+            mensajesDiv.appendChild(messageDiv);
+            
+            // Scroll al final
+            mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+        }
+
+        function mostrarAlertaEnRuta(pedidoId) {
+            // Crear notificación visual
+            const alerta = document.createElement('div');
+            alerta.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideInRight 0.5s ease-out;
+                font-size: 16px;
+                font-weight: bold;
+            `;
+            alerta.innerHTML = `
+                🚀 ¡Pedido #${pedidoId} EN RUTA!<br>
+                <small style="font-weight: normal; opacity: 0.9;">Notificación recibida en tiempo real</small>
+            `;
+            
+            document.body.appendChild(alerta);
+            
+            // Remover después de 5 segundos
+            setTimeout(() => {
+                alerta.style.animation = 'slideOutRight 0.5s ease-in';
+                setTimeout(() => alerta.remove(), 500);
+            }, 5000);
+        }
+
+        function mostrarNotificacionPush(pedidoId, estadoNuevo, estadoAnterior) {
+            // Mapear estados a colores y emojis
+            const estadoInfo = {
+                'Recibido': { color: '#2196F3', emoji: '📝', bg: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)' },
+                'Asignado': { color: '#FF9800', emoji: '👤', bg: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)' },
+                'Entregado': { color: '#4CAF50', emoji: '✅', bg: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)' },
+                'Cancelado': { color: '#F44336', emoji: '❌', bg: 'linear-gradient(135deg, #F44336 0%, #D32F2F 100%)' }
+            };
+
+            const info = estadoInfo[estadoNuevo] || { color: '#9C27B0', emoji: '🔔', bg: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)' };
+            
+            // Crear notificación visual
+            const notificacion = document.createElement('div');
+            notificacion.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${info.bg};
+                color: white;
+                padding: 20px 30px;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideInRight 0.5s ease-out;
+                font-size: 16px;
+                font-weight: bold;
+                max-width: 350px;
+            `;
+            notificacion.innerHTML = `
+                ${info.emoji} ¡Pedido #${pedidoId} actualizado!<br>
+                <small style="font-weight: normal; opacity: 0.9;">${estadoAnterior} → ${estadoNuevo}</small>
+            `;
+            
+            document.body.appendChild(notificacion);
+            
+            // Remover después de 5 segundos
+            setTimeout(() => {
+                notificacion.style.animation = 'slideOutRight 0.5s ease-in';
+                setTimeout(() => notificacion.remove(), 500);
+            }, 5000);
+            
+            // Intentar notificación del navegador (si está permitido)
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(`Pedido #${pedidoId}`, {
+                    body: `${estadoAnterior} → ${estadoNuevo}`,
+                    icon: '🚚',
+                    badge: info.emoji
+                });
+            }
+        }
+
+        function actualizarEstado(conectado) {
+            const statusDiv = document.getElementById('status');
+            const btnConectar = document.getElementById('btnConectar');
+            const btnDesconectar = document.getElementById('btnDesconectar');
+            
+            if (conectado) {
+                statusDiv.className = 'status connected';
+                statusDiv.innerHTML = '● Conectado';
+                btnConectar.disabled = true;
+                btnDesconectar.disabled = false;
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.innerHTML = '● Desconectado';
+                btnConectar.disabled = false;
+                btnDesconectar.disabled = true;
+            }
+        }
+
+        function actualizarEstadisticas() {
+            document.getElementById('totalMensajes').textContent = totalMensajes;
+            document.getElementById('pedidosMensajes').textContent = pedidosMensajes;
+            document.getElementById('ubicacionMensajes').textContent = ubicacionMensajes;
+        }
+
+        function limpiarMensajes() {
+            const mensajesDiv = document.getElementById('mensajes');
+            mensajesDiv.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Mensajes limpiados</div>';
+            totalMensajes = 0;
+            pedidosMensajes = 0;
+            ubicacionMensajes = 0;
+            actualizarEstadisticas();
+        }
+
+        function probarConPowerShell() {
+            alert('📋 Instrucciones:\n\n' +
+                  '1. Abre PowerShell\n' +
+                  '2. Navega a: cd C:\\Users\\USUARIO\\Documents\\GitHub\\BackendLogiflow\n' +
+                  '3. Ejecuta: .\\test-fase2-completo.ps1\n' +
+                  '4. Observa las notificaciones aparecer aquí en < 2 segundos');
+        }
+
+        // Agregar estilos de animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

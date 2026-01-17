@@ -1,14 +1,17 @@
 package ec.edu.espe.PedidoService.controller;
 
 import ec.edu.espe.PedidoService.dto.EstadoRequest;
+import ec.edu.espe.PedidoService.dto.KPIDiarioDto;
 import ec.edu.espe.PedidoService.dto.PedidoRequest;
 import ec.edu.espe.PedidoService.model.Pedido;
 import ec.edu.espe.PedidoService.services.PedidoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -22,9 +25,19 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.crearPedido(request));
     }
 
+    @GetMapping
+    public ResponseEntity<List<Pedido>> listarTodos() {
+        return ResponseEntity.ok(pedidoService.listarTodos());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(pedidoService.obtenerPedido(id));
+    }
+
+    @GetMapping("/estado/{estado}")
+    public ResponseEntity<List<Pedido>> listarPorEstado(@PathVariable String estado) {
+        return ResponseEntity.ok(pedidoService.listarPorEstado(estado));
     }
 
     @GetMapping("/cliente/{clienteId}")
@@ -43,5 +56,12 @@ public class PedidoController {
     public ResponseEntity<?> cancelar(@PathVariable Long id) {
         pedidoService.cancelarPedido(id);
         return ResponseEntity.ok("Pedido cancelado exitosamente");
+    }
+
+    // Endpoint para KPI diario
+    @GetMapping("/kpi/diario")
+    public ResponseEntity<KPIDiarioDto> obtenerKPIDiario(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        return ResponseEntity.ok(pedidoService.obtenerKPIDiario(fecha));
     }
 }

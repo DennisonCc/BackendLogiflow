@@ -1,0 +1,29 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: TrackingService
+  datasource:
+    url: jdbc:postgresql://localhost:5440/trackingdb
+    username: logiflow
+    password: logiflow123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  rabbitmq:
+    host: localhost
+    port: 5673
+    username: logiflow
+    password: logiflow123
+
+logging:
+  level:
+    ec.edu.espe.TrackingService: DEBUG
+    org.springframework.amqp: INFO

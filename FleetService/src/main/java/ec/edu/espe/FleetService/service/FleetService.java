@@ -2,6 +2,7 @@ package ec.edu.espe.FleetService.service;
 
 import ec.edu.espe.FleetService.dto.request.RepartidorRequest;
 import ec.edu.espe.FleetService.dto.request.VehiculoRequest;
+import ec.edu.espe.FleetService.dto.response.FlotaResumenDto;
 import ec.edu.espe.FleetService.model.EstadoVehiculo;
 import ec.edu.espe.FleetService.model.Repartidor;
 import ec.edu.espe.FleetService.model.Vehiculo;
@@ -20,4 +21,8 @@ public interface FleetService {
     Repartidor obtenerRepartidor(Long id);
     Repartidor actualizarRepartidor(Long id, RepartidorRequest request);
     void eliminarRepartidor(Long id);
+    
+    // Nuevos métodos para GraphQL
+    FlotaResumenDto obtenerResumenFlota();
+    List<Repartidor> obtenerRepartidoresActivos(Long zonaId);
 }

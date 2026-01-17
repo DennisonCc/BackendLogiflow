@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "camiones")
+@DiscriminatorValue("CAMION")
 @PrimaryKeyJoinColumn(name = "vehiculo_id")
 @Data
 @EqualsAndHashCode(callSuper = true)

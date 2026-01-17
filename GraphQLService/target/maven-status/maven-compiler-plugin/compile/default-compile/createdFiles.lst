@@ -1,0 +1,11 @@
+ec\edu\espe\GraphQLService\model\FlotaResumen$FlotaResumenBuilder.class
+ec\edu\espe\GraphQLService\resolver\KPIQueryResolver.class
+ec\edu\espe\GraphQLService\client\FleetServiceClient.class
+ec\edu\espe\GraphQLService\dataloader\PedidoDataLoader.class
+ec\edu\espe\GraphQLService\client\FleetServiceClient$1.class
+ec\edu\espe\GraphQLService\model\KPIDiario$KPIDiarioBuilder.class
+ec\edu\espe\GraphQLService\model\FlotaResumen.class
+ec\edu\espe\GraphQLService\config\DataLoaderConfig.class
+ec\edu\espe\GraphQLService\resolver\FlotaQueryResolver.class
+ec\edu\espe\GraphQLService\client\BillingServiceClient.class
+ec\edu\espe\GraphQLService\model\KPIDiario.class

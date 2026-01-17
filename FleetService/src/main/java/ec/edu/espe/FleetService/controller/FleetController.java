@@ -4,6 +4,7 @@ import ec.edu.espe.FleetService.dto.mapper.VehiculoMapper;
 import ec.edu.espe.FleetService.dto.request.ActualizarEstadoVehiculoRequest;
 import ec.edu.espe.FleetService.dto.request.RepartidorRequest;
 import ec.edu.espe.FleetService.dto.request.VehiculoRequest;
+import ec.edu.espe.FleetService.dto.response.FlotaResumenDto;
 import ec.edu.espe.FleetService.dto.response.VehiculoResponseDto;
 import ec.edu.espe.FleetService.model.Repartidor;
 import ec.edu.espe.FleetService.model.Vehiculo;
@@ -84,5 +85,17 @@ public class FleetController {
     public ResponseEntity<?> eliminarRepartidor(@PathVariable Long id) {
         fleetService.eliminarRepartidor(id);
         return ResponseEntity.ok("Repartidor eliminado exitosamente");
+    }
+
+    // Endpoints para GraphQL
+    @GetMapping("/resumen")
+    public ResponseEntity<FlotaResumenDto> obtenerResumenFlota() {
+        return ResponseEntity.ok(fleetService.obtenerResumenFlota());
+    }
+
+    @GetMapping("/repartidores/activos")
+    public ResponseEntity<List<Repartidor>> obtenerRepartidoresActivos(
+            @RequestParam(required = false) Long zonaId) {
+        return ResponseEntity.ok(fleetService.obtenerRepartidoresActivos(zonaId));
     }
 }

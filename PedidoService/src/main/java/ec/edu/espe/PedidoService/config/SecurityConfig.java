@@ -14,10 +14,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**").permitAll()  // Permitir health checks
-                        .anyRequest().authenticated()  // Requerir autenticación para todo lo demás
-                )
-                .httpBasic(httpBasic -> {});  // Habilitar autenticación básica para tests
+                        .anyRequest().permitAll()  // Permitir todas las peticiones (Kong maneja la autenticación)
+                );
         return http.build();
     }
 }

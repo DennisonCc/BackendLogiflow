@@ -1,0 +1,109 @@
+type Query {
+    # Consultas de pedidos
+    pedido(id: ID!): Pedido
+    pedidos(filtro: PedidoFiltro, paginacion: Paginacion): PedidosResponse
+    pedidosPorEstado(estado: String!): [Pedido!]!
+    pedidosPorCliente(clienteId: ID!): [Pedido!]!
+    
+    # Consultas de flota
+    flotaActiva(zonaId: ID): [Repartidor!]!
+    repartidor(id: ID!): Repartidor
+    vehiculo(id: ID!): Vehiculo
+    
+    # KPIs y métricas
+    kpiDiario(fecha: String!): KPIDiario
+    resumenFlota: FlotaResumen
+}
+
+type Pedido {
+    id: ID!
+    clienteId: ID!
+    repartidorId: ID
+    tipoEntrega: String!
+    estado: String!
+    direccionOrigen: String
+    direccionDestino: String!
+    costoEnvio: Float
+    distanciaKm: Float
+    tiempoEstimadoMin: Int
+    fechaCreacion: String!
+    fechaAsignacion: String
+    fechaEntrega: String
+    observaciones: String
+}
+
+type PedidosResponse {
+    pedidos: [Pedido!]!
+    total: Int!
+    pagina: Int!
+    totalPaginas: Int!
+}
+
+input PedidoFiltro {
+    estado: String
+    tipoEntrega: String
+    clienteId: ID
+    repartidorId: ID
+    fechaDesde: String
+    fechaHasta: String
+}
+
+input Paginacion {
+    pagina: Int
+    tamano: Int
+}
+
+type Repartidor {
+    id: ID!
+    nombre: String!
+    apellido: String!
+    cedula: String!
+    telefono: String!
+    email: String!
+    estado: String!
+    calificacionPromedio: Float
+    pedidosCompletados: Int
+    vehiculoId: ID
+    vehiculo: Vehiculo
+    ubicacionActual: Ubicacion
+}
+
+type Vehiculo {
+    id: ID!
+    placa: String!
+    marca: String!
+    modelo: String!
+    anio: Int!
+    tipo: String!
+    capacidadKg: Float
+    capacidadM3: Float
+    estado: String!
+}
+
+type Ubicacion {
+    latitud: Float!
+    longitud: Float!
+    timestamp: String!
+    velocidad: Float
+    precision: Int
+}
+
+type KPIDiario {
+    fecha: String!
+    pedidosCreados: Int!
+    pedidosCompletados: Int!
+    pedidosCancelados: Int!
+    tasaCompletado: Float!
+    tiempoPromedioEntrega: Int!
+    distanciaPromedioKm: Float!
+    ingresoTotal: Float!
+}
+
+type FlotaResumen {
+    totalRepartidores: Int!
+    repartidoresActivos: Int!
+    repartidoresDisponibles: Int!
+    repartidoresEnRuta: Int!
+    vehiculosActivos: Int!
+    pedidosEnCurso: Int!
+}

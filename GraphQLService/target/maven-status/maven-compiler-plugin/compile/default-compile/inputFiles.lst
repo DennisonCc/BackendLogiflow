@@ -1,0 +1,13 @@
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\client\BillingServiceClient.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\client\FleetServiceClient.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\client\PedidoServiceClient.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\config\DataLoaderConfig.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\dataloader\PedidoDataLoader.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\GraphQLServiceApplication.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\model\FlotaResumen.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\model\KPIDiario.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\model\Pedido.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\model\Repartidor.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\resolver\FlotaQueryResolver.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\resolver\KPIQueryResolver.java
+C:\Users\USUARIO\Documents\GitHub\BackendLogiflow\GraphQLService\src\main\java\ec\edu\espe\GraphQLService\resolver\PedidoQueryResolver.java

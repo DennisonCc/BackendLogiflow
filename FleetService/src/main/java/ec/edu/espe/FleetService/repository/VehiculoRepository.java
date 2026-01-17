@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface VehiculoRepository extends JpaRepository<Vehiculo,Long> {
     Optional<Vehiculo> findByPlaca(String placa);
     List<Vehiculo> findByEstado(EstadoVehiculo estado);
-
+    long countByEstado(EstadoVehiculo estado);
 }

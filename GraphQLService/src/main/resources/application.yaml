@@ -1,0 +1,28 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: GraphQLService
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    path: /graphql
+    schema:
+      printer:
+        enabled: true
+
+# URLs de los microservicios
+services:
+  pedido:
+    url: ${PEDIDO_SERVICE_URL:http://localhost:8082}/api/pedidos
+  fleet:
+    url: ${FLEET_SERVICE_URL:http://localhost:8084}/api/fleet
+  billing:
+    url: ${BILLING_SERVICE_URL:http://localhost:8083}/api/billing
+
+logging:
+  level:
+    ec.edu.espe.GraphQLService: DEBUG
+    org.springframework.graphql: INFO
